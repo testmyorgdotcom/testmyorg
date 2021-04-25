@@ -1,2 +1,2 @@
 # testmyorg
-TestMyOrg framework to automate testing of your salesforce organization 
+TestMyOrg framework to automate e2e testing for your salesforce organization.  
