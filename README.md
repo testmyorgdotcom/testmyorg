@@ -1,2 +1,2 @@
 # testmyorg
-Automate Testing of your Salesforce organization.
+Help to automate testing of your salesforce organization.
