@@ -17,4 +17,10 @@ public class AppLauncher {
                 .locatedBy(
                         String.format("//div[@aria-label='Items']//a[@data-label='%s']", itemName));
     }
+
+    public static Target appCalled(String appName) {
+        return Target.the("App called: " + appName)
+                .locatedBy(
+                        String.format("//div[@aria-label='Apps']//a[@data-label='%s']", appName));
+    }
 }
