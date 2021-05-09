@@ -23,7 +23,7 @@ public class ViaFrontDoorUrl implements Interaction, Config {
         final String loginUrl = URLHelper.extractMainUrl(endPointUrl);
         final String sessionId = connectorConfig.getSessionId();
 
-        final String targetUrl = String.format(PATTERN_LOGIN_WITH_FRONTDOOR_URL, loginUrl, sessionId);
+        final String targetUrl = String.format(PATTERN_URL_LOGIN_VIA_FRONTDOOR, loginUrl, sessionId);
 
         actor.attemptsTo(
                 Open.url(targetUrl),

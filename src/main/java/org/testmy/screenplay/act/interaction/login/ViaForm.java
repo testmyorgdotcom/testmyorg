@@ -18,7 +18,7 @@ public class ViaForm implements Interaction, Config {
 
     @Override
     public <T extends Actor> void performAs(T actor) {
-        final String loginUrl = System.getProperty(PROPERTY_LOGIN_URL, PROPERTY_DEFAULT_LOGIN_URL);
+        final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
         final AuthenticateWithCredentials credentials = AuthenticateWithCredentials.as(actor);
         actor.attemptsTo(
                 Open.url(loginUrl),

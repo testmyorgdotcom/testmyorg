@@ -21,12 +21,12 @@ public class WithCredentialsInUrl implements Interaction, Config {
 
     @Override
     public <T extends Actor> void performAs(T actor) {
-        final String loginUrl = System.getProperty(PROPERTY_LOGIN_URL, PROPERTY_DEFAULT_LOGIN_URL);
+        final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
         final AuthenticateWithCredentials credentials = AuthenticateWithCredentials.as(actor);
         final String password = URLHelper.encode(credentials.getPassword());
         final String username = URLHelper.encode(credentials.getUsername());
 
-        final String targetUrl = String.format(PATTERN_LOGIN_WITH_CREDENTIALS_IN_URL, loginUrl, username, password);
+        final String targetUrl = String.format(PATTERN_URL_LOGIN_WITH_CREDENTIALS, loginUrl, username, password);
 
         System.err.println("Target URL: " + targetUrl);
 

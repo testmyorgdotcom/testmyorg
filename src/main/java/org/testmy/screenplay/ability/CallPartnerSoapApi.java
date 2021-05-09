@@ -31,7 +31,10 @@ public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
             final ConnectorConfig config = new ConnectorConfig();
             config.setUsername(credentials.getUsername());
             config.setPassword(credentials.getPassword());
-            config.setAuthEndpoint(System.getProperty(PROPERTY_LOGIN_URL, PROPERTY_DEFAULT_LOGIN_URL));
+            final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
+            final String partnerApiVersion = System.getProperty(PROPERTY_VERSION_API_SOAP_PARTNER,
+                    PROPERTY_DEFAULT_VERSION_API_SOAP_PARTNER);
+            config.setAuthEndpoint(String.format(PATTERN_URL_PARTNER_SOAP_API, loginUrl, partnerApiVersion));
             this.connection = Optional.of(connectionFactory.apply(config));
         }
         return connection.get();
