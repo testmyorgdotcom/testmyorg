@@ -15,7 +15,7 @@ import com.sforce.soap.partner.sobject.SObject;
 import org.hamcrest.Matcher;
 import org.testmy.data.matchers.ConstructingMatcher;
 
-public class TestDataManager implements ITestDataManager {
+public class TestDataManager {
     private List<SObject> sObjects = new LinkedList<>();
 
     public List<SObject> getData() {
@@ -26,7 +26,6 @@ public class TestDataManager implements ITestDataManager {
         sObjects.add(object);
     }
 
-    @Override
     public SObject ensureObject(
             final ConstructingMatcher sObjectShape,
             final Function<SObject[], SaveResult[]> storeFunction) {
@@ -41,18 +40,16 @@ public class TestDataManager implements ITestDataManager {
         });
     }
 
-    private SObject constructSObject(final ConstructingMatcher sObjectShape) {
+    public SObject constructSObject(final ConstructingMatcher sObjectShape) {
         final SObject result = new SObject("Type must be initialized 1st, but can be changed later");
         sObjectShape.visitForUpdate(result);
         return result;
     }
 
-    @Override
     public Optional<SObject> findObject(Matcher<SObject> sObjectShape) {
         return sObjects.stream().filter(sObjectShape::matches).findFirst();
     }
 
-    @Override
     public List<SObject> findObjects(final Matcher<SObject> sObjectShape) {
         return sObjects.stream().filter(sObjectShape::matches).collect(Collectors.toList());
     }

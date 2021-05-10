@@ -30,6 +30,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.data.matchers.ConstructingMatcher;
+import org.testmy.error.TestRuntimeException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
@@ -151,5 +152,14 @@ public class TestDataManagerTest {
                 hasName("Test Client"));
 
         dataManagerUnderTest.cacheExistingShape(ofShape);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void failConstructionIfWithoutType() {
+        final ConstructingMatcher ofShape = ofShape(
+                hasId("003xyz..."),
+                hasName("Test Client"));
+
+        dataManagerUnderTest.constructSObject(ofShape);
     }
 }
