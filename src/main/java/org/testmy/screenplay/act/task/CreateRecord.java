@@ -4,11 +4,9 @@ import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisi
 
 import com.sforce.soap.partner.sobject.SObject;
 
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.interactions.Action;
-import org.openqa.selenium.interactions.Actions;
 import org.testmy.data.TestDataManager;
 import org.testmy.data.matchers.HasFields;
+import org.testmy.screenplay.factory.KeyboardShortcuts;
 import org.testmy.screenplay.ui.GlobalActions;
 import org.testmy.screenplay.ui.NewContact.LastName;
 import org.testmy.screenplay.ui.Toast;
@@ -16,7 +14,6 @@ import org.testmy.screenplay.ui.Toast;
 import net.serenitybdd.core.steps.Instrumented;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Interaction;
-import net.serenitybdd.screenplay.abilities.BrowseTheWeb;
 import net.serenitybdd.screenplay.actions.Click;
 import net.serenitybdd.screenplay.actions.SendKeys;
 import net.serenitybdd.screenplay.waits.WaitUntil;
@@ -43,11 +40,8 @@ public class CreateRecord implements Interaction {
                 WaitUntil.the(GlobalActions.createMenuList(), isVisible()),
                 Click.on(GlobalActions.createMenuListItem("New Contact")),
                 WaitUntil.the(GlobalActions.form("New Contact"), isVisible()),
-                SendKeys.of(sOjbect.getField("LastName").toString()).into(LastName.input()));
-        Actions actionProvider = new Actions(actor.abilityTo(BrowseTheWeb.class).getDriver());
-        Action keydown = actionProvider.keyDown(Keys.CONTROL).sendKeys("s").build();
-        keydown.perform();
-        actor.attemptsTo(
+                SendKeys.of(sOjbect.getField("LastName").toString()).into(LastName.input()),
+                KeyboardShortcuts.save(),
                 WaitUntil.the(Toast.success(), isVisible()),
                 Click.on(Toast.objectName()),
                 StoreObjectAtScene.intoDataCache());
