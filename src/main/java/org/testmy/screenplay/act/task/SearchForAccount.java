@@ -1,9 +1,9 @@
 package org.testmy.screenplay.act.task;
 
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isNotVisible;
-import static org.testmy.data.matchers.Matchers.account;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
+import static org.testmy.data.matchers.ObjectMatchers.account;
 
 import java.net.MalformedURLException;
 import java.net.URL;

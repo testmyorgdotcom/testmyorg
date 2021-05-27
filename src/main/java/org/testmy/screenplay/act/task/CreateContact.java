@@ -3,9 +3,9 @@ package org.testmy.screenplay.act.task;
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isNotVisible;
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisible;
 
+import org.testmy.screenplay.factory.KeyboardShortcuts;
 import org.testmy.screenplay.ui.NewContact;
 import org.testmy.screenplay.ui.NewContact.LastName;
-import org.testmy.screenplay.ui.NewContact.Save;
 import org.testmy.screenplay.ui.Toast;
 import org.testmy.screenplay.ui.WebPage;
 
@@ -33,7 +33,8 @@ public class CreateContact implements Task {
                 Click.on(NewContact.quickActionButton()),
                 WaitUntil.the(NewContact.quickActionLayout(), isVisible()),
                 SendKeys.of(lastName).into(LastName.input()),
-                Click.on(Save.button()),
+                // Click.on(Save.button()),
+                KeyboardShortcuts.save(),
                 WaitUntil.the(Toast.success(), isVisible()),
                 Click.on(Toast.objectName()),
                 WaitUntil.the(WebPage.loadingLogo(), isNotVisible()),

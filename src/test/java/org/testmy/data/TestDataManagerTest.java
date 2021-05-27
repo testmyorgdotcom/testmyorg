@@ -9,11 +9,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testmy.data.matchers.Matchers.account;
 import static org.testmy.data.matchers.Matchers.hasField;
 import static org.testmy.data.matchers.Matchers.hasId;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
+import static org.testmy.data.matchers.ObjectMatchers.account;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -30,7 +30,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.data.matchers.ConstructingMatcher;
-import org.testmy.error.TestRuntimeException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {

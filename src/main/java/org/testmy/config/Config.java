@@ -20,4 +20,19 @@ public interface Config {
 
     // messages
     String PATTERN_MESSAGE_ERROR_CONSTRUCT_ATTRIBUTE_MISSING = "Object Shape is without mandatory %s attribute: %s";
+
+    // Global Actions
+    String GLOBAL_ACTION_NEW_CASE = "New Case";
+    String GLOBAL_ACTION_NEW_CONTACT = "New Contact";
+    String GLOBAL_ACTION_NEW_EVENT = "New Event";
+    String GLOBAL_ACTION_NEW_LEAD = "New Lead";
+    String GLOBAL_ACTION_NEW_TASK = "New Task";
+
+    // Object Types
+    String OBJECT_ACCOUNT = "Account";
+    String OBJECT_CASE = "Case";
+    String OBJECT_CONTACT = "Contact";
+    String OBJECT_EVENT = "Event";
+    String OBJECT_LEAD = "Lead";
+    String OBJECT_TASK = "Task";
 }

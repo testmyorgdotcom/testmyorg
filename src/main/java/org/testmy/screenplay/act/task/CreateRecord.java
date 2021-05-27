@@ -13,23 +13,29 @@ import org.testmy.screenplay.ui.Toast;
 
 import net.serenitybdd.core.steps.Instrumented;
 import net.serenitybdd.screenplay.Actor;
-import net.serenitybdd.screenplay.Interaction;
+import net.serenitybdd.screenplay.Task;
 import net.serenitybdd.screenplay.actions.Click;
 import net.serenitybdd.screenplay.actions.SendKeys;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 import net.thucydides.core.annotations.Shared;
 
-public class CreateRecord implements Interaction {
+public class CreateRecord implements Task {
     @Shared
     private TestDataManager dataManager;
+    private String globalAction;
     private HasFields objectShapeToCreate;
 
-    public CreateRecord(final HasFields objectShapeToCreate) {
-        this.objectShapeToCreate = objectShapeToCreate;
+    public CreateRecord(final String globalAction) {
+        this.globalAction = globalAction;
     }
 
-    public static CreateRecord viaGlobalAction(HasFields ofShape) {
-        return Instrumented.instanceOf(CreateRecord.class).withProperties(ofShape);
+    public static CreateRecord viaGlobalAction(final String globalAction) {
+        return Instrumented.instanceOf(CreateRecord.class).withProperties(globalAction);
+    }
+
+    public Task of(final HasFields shape) {
+        this.objectShapeToCreate = shape;
+        return this;
     }
 
     @Override
@@ -38,8 +44,9 @@ public class CreateRecord implements Interaction {
         actor.attemptsTo(
                 Click.on(GlobalActions.createButton()),
                 WaitUntil.the(GlobalActions.createMenuList(), isVisible()),
-                Click.on(GlobalActions.createMenuListItem("New Contact")),
-                WaitUntil.the(GlobalActions.form("New Contact"), isVisible()),
+                Click.on(GlobalActions.createMenuListItem(globalAction)),
+                WaitUntil.the(GlobalActions.form(globalAction), isVisible()),
+                PopulateComposer.from(objectShapeToCreate),
                 SendKeys.of(sOjbect.getField("LastName").toString()).into(LastName.input()),
                 KeyboardShortcuts.save(),
                 WaitUntil.the(Toast.success(), isVisible()),
