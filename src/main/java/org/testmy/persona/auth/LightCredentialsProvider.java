@@ -5,7 +5,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.testmy.persona.Persona;
 
 public class LightCredentialsProvider implements ICredentialsProvider {
-    public static String passwordPropertyName = "testmyorg.commonPass";
+    static String passwordPropertyName = "testmyorg.commonPass";
 
     @Override
     public Credentials getCredentialsFor(Persona testPersona) {
