@@ -28,9 +28,8 @@ public class PersonaBehaviour implements Fact {
 
     @Override
     public void teardown(final Actor actor) {
-        final Persona reservedPersona = of(actor);
         actorsFacts.remove(actor);
-        personaManager.tearDown(actor.getName(), reservedPersona);
+        personaManager.tearDown(actor.getName());
     }
 
     public static Persona of(Actor actor) {
