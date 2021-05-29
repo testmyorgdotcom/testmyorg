@@ -5,6 +5,10 @@
 .settings/
 .project
 
+## IDEA
+.idea/
+*.iml
+
 # Compiled class file
 *.class
 target/
