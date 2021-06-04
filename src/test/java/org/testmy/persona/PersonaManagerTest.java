@@ -95,7 +95,7 @@ public class PersonaManagerTest {
         managerUnderTest.addPersona(expectedPersona);
 
         Persona reservedPersona = managerUnderTest.reservePersonaFor("1st actor");
-        managerUnderTest.tearDown("1st actor", reservedPersona);
+        managerUnderTest.tearDown("1st actor");
         reservedPersona = managerUnderTest.reservePersonaFor("2nd actor");
 
         assertThat(reservedPersona, is(expectedPersona));

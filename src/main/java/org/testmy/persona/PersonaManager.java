@@ -44,10 +44,10 @@ public class PersonaManager {
         this.personas.add(persona);
     }
 
-    public void tearDown(String actorName,
-            Persona reservedPersona) {
+    public void tearDown(String actorName) {
+        Persona p = actorsPersonas.get(actorName).stream().findFirst().get();
         actorsPersonas.get(actorName).remove(reservedPersona);
-        reservedPersonas.remove(reservedPersona);
+        reservedPersonas.remove(p);
     }
 
     private Persona reservePersona(final Predicate<Persona> criteria) {
