@@ -33,6 +33,7 @@
 
         <!-- test dependencies versions -->
         <junit.version>4.12</junit.version>
+        <mockito-inline.version>3.8.0</mockito-inline.version>
 	</properties>
 
 	<dependencies>
@@ -84,6 +85,12 @@
 			<version>${serenity.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>${mockito-inline.version}</version>
+			<scope>test</scope>
+		</dependency>		
     </dependencies>
 
     <build>
