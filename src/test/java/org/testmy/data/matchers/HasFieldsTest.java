@@ -3,9 +3,9 @@ package org.testmy.data.matchers;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.testmy.data.matchers.Matchers.account;
 import static org.testmy.data.matchers.Matchers.hasField;
 import static org.testmy.data.matchers.Matchers.ofShape;
+import static org.testmy.data.matchers.ObjectMatchers.account;
 import static org.testmy.data.query.SoqlBuilder.soqlBuilder;
 
 import com.sforce.soap.partner.sobject.SObject;

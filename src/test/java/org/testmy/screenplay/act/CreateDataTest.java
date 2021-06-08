@@ -6,9 +6,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testmy.data.matchers.Matchers.account;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
+import static org.testmy.data.matchers.ObjectMatchers.account;
 
 import java.util.List;
 import java.util.function.Function;
