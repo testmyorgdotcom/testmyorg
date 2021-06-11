@@ -45,8 +45,8 @@ public class PersonaManager {
     }
 
     public void tearDown(String actorName) {
-        Persona p = actorsPersonas.get(actorName).stream().findFirst().get();
-        actorsPersonas.get(actorName).remove(reservedPersona);
+        final Persona p = actorsPersonas.get(actorName).stream().findFirst().get();
+        actorsPersonas.get(actorName).remove(p);
         reservedPersonas.remove(p);
     }
 

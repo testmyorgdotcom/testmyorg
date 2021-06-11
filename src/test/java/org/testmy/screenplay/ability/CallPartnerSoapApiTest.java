@@ -14,17 +14,17 @@ import com.sforce.ws.ConnectorConfig;
 
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.error.AbilityIsAbsentException;
-import org.testmy.persona.auth.ICredentialsProvider;
-import org.testmy.screenplay.fact.PersonaBehaviour;
+import org.testmy.persona.auth.CredentialsProvider;
 import org.testmy.screenplay.factory.ability.Authenticate;
 import org.testmy.screenplay.factory.ability.Call;
 
@@ -36,7 +36,9 @@ public class CallPartnerSoapApiTest {
     public final ExpectedException exceptionRule = ExpectedException.none();
 
     @Mock
-    ICredentialsProvider credentialsProvider;
+    AuthenticateWithCredentials authInfo;
+    @Mock
+    CredentialsProvider credentialsProvider;
     final Credentials testCredentials = new UsernamePasswordCredentials("x", "y");
     @Mock
     Function<ConnectorConfig, PartnerConnection> connectionFactory;
@@ -51,13 +53,7 @@ public class CallPartnerSoapApiTest {
     @Before
     public void before() {
         actor.can(Call.partnerApi(connectionFactory));
-        actor.can(Authenticate.using(credentialsProvider));
-        actor.has(PersonaBehaviour.of("Sales"));
-    }
-
-    @After
-    public void after() {
-        PersonaBehaviour.of("Sales").teardown(actor);
+        actor.can(Authenticate.as("Sales"));
     }
 
     @Test
@@ -74,30 +70,38 @@ public class CallPartnerSoapApiTest {
 
     @Test
     public void establishesConnection() {
-        when(credentialsProvider.getCredentialsFor(any())).thenReturn(testCredentials);
         when(connectionFactory.apply(any())).thenReturn(mockPartnerConnection);
 
         final CallPartnerSoapApi callPartnerApiAbility = CallPartnerSoapApi.as(actor);
 
-        assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
-        callPartnerApiAbility.ensureConnection();
+        try (MockedStatic<AuthenticateWithCredentials> auth = Mockito.mockStatic(AuthenticateWithCredentials.class)) {
+            auth.when(() -> AuthenticateWithCredentials.as(actor))
+                    .thenReturn(authInfo);
 
-        assertThat(callPartnerApiAbility.getConnection().isPresent(), is(true));
+            assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
+            callPartnerApiAbility.ensureConnection();
+
+            assertThat(callPartnerApiAbility.getConnection().isPresent(), is(true));
+        }
     }
 
     @Test
     public void reuseEstablishedConnection() {
-        when(credentialsProvider.getCredentialsFor(any())).thenReturn(testCredentials);
         when(connectionFactory.apply(any())).thenReturn(mockPartnerConnection);
 
         final CallPartnerSoapApi callPartnerApiAbility = CallPartnerSoapApi.as(actor);
 
-        assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
-        callPartnerApiAbility.ensureConnection();
-        callPartnerApiAbility.ensureConnection();
+        try (MockedStatic<AuthenticateWithCredentials> auth = Mockito.mockStatic(AuthenticateWithCredentials.class)) {
+            auth.when(() -> AuthenticateWithCredentials.as(actor))
+                    .thenReturn(authInfo);
 
-        assertThat(callPartnerApiAbility.getConnection().isPresent(), is(true));
-        verify(connectionFactory, times(1)).apply(any());
+            assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
+            callPartnerApiAbility.ensureConnection();
+            callPartnerApiAbility.ensureConnection();
+
+            assertThat(callPartnerApiAbility.getConnection().isPresent(), is(true));
+            verify(connectionFactory, times(1)).apply(any());
+        }
     }
 
     @Test

@@ -1,39 +1,68 @@
 package org.testmy.screenplay.ability;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.equalTo;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import org.junit.After;
+import java.util.stream.IntStream;
+
+import org.apache.http.auth.UsernamePasswordCredentials;
 import org.junit.Before;
 import org.junit.Test;
-import org.testmy.screenplay.fact.PersonaBehaviour;
-import org.testmy.screenplay.factory.ability.Authenticate;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import org.testmy.persona.PersonaManager;
+import org.testmy.persona.auth.CredentialsProvider;
 
 import net.serenitybdd.screenplay.Actor;
 
+@RunWith(MockitoJUnitRunner.class)
 public class AuthenticateWithCredentialsTest {
-    Actor mike;
+    String actorName = "Mike";
+    Actor testActor = new Actor(actorName);
+
+    String persona = "Sales Manager";
+    String testUser = "Test User";
+    String testPass = "123456";
+
+    @Mock
+    private CredentialsProvider credentialsProvider;
+    @Mock
+    private PersonaManager personaManager;
+    @InjectMocks
+    final AuthenticateWithCredentials authInfo = new AuthenticateWithCredentials(persona);
 
     @Before
     public void before() {
-        mike = Actor.named("Mike");
-        mike
-                .can(Authenticate.withCredentials())
-                .has(PersonaBehaviour.of("Sales"));
-    }
-
-    @After
-    public void after() {
-        PersonaBehaviour.of("Sales").teardown(mike);
+        authInfo.asActor(testActor);
+        when(credentialsProvider.getCredentialsFor(any()))
+                .thenReturn(new UsernamePasswordCredentials(testUser, testPass));
     }
 
     @Test
-    public void testAuthenticateAs() {
+    public void resolveCredentialsForPersonaUsingCredentialsProvider() {
+        authInfo.resolveCredentials();
 
-        final AuthenticateWithCredentials authenticated = AuthenticateWithCredentials.as(mike);
+        assertThat(authInfo.getUsername(), equalTo(testUser));
+        assertThat(authInfo.getPassword(), equalTo(testPass));
 
-        assertThat(authenticated.getUsername(), is(notNullValue()));
-        assertThat(authenticated.getPassword(), is(notNullValue()));
+        verify(personaManager, times(1)).reservePersonaFor(actorName, persona);
+        verify(credentialsProvider, times(1)).getCredentialsFor(any());
+    }
+
+    @Test
+    public void avoidResolvingIfUsernamePasswordAreAvailableAlready() {
+        final Integer numOfResolveCalls = 10;
+        IntStream.range(0, numOfResolveCalls).forEach(i -> {
+            authInfo.resolveCredentials();
+        });
+
+        verify(personaManager, times(1)).reservePersonaFor(actorName, persona);
+        verify(credentialsProvider, times(1)).getCredentialsFor(any());
     }
 }

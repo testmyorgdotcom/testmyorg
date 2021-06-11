@@ -27,17 +27,27 @@ public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
     public PartnerConnection ensureConnection() {
 
         if (!connection.isPresent()) {
-            final AuthenticateWithCredentials credentials = AuthenticateWithCredentials.as(actor);
-            final ConnectorConfig config = new ConnectorConfig();
-            config.setUsername(credentials.getUsername());
-            config.setPassword(credentials.getPassword());
-            final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
-            final String partnerApiVersion = System.getProperty(PROPERTY_VERSION_API_SOAP_PARTNER,
-                    PROPERTY_DEFAULT_VERSION_API_SOAP_PARTNER);
-            config.setAuthEndpoint(String.format(PATTERN_URL_PARTNER_SOAP_API, loginUrl, partnerApiVersion));
+            final ConnectorConfig config = setupConfig();
             this.connection = Optional.of(connectionFactory.apply(config));
         }
         return connection.get();
+    }
+
+    private ConnectorConfig setupConfig() {
+        final AuthenticateWithCredentials credentials = AuthenticateWithCredentials.as(actor);
+        final ConnectorConfig config = new ConnectorConfig();
+        config.setUsername(credentials.getUsername());
+        config.setPassword(credentials.getPassword());
+        config.setAuthEndpoint(constructEndPoint());
+        return config;
+    }
+
+    private String constructEndPoint() {
+        final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
+        final String partnerApiVersion = System.getProperty(PROPERTY_VERSION_API_SOAP_PARTNER,
+                PROPERTY_DEFAULT_VERSION_API_SOAP_PARTNER);
+        return String.format(PATTERN_URL_PARTNER_SOAP_API, loginUrl, partnerApiVersion);
+
     }
 
     public static CallPartnerSoapApi as(final Actor actor) {

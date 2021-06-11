@@ -2,8 +2,8 @@ package org.testmy.screenplay.ability;
 
 import org.apache.http.auth.Credentials;
 import org.testmy.persona.Persona;
-import org.testmy.persona.auth.ICredentialsProvider;
-import org.testmy.screenplay.fact.PersonaBehaviour;
+import org.testmy.persona.PersonaManager;
+import org.testmy.persona.auth.CredentialsProvider;
 
 import lombok.Getter;
 import net.serenitybdd.screenplay.Ability;
@@ -12,27 +12,32 @@ import net.serenitybdd.screenplay.RefersToActor;
 
 public class AuthenticateWithCredentials implements Ability, RefersToActor {
     private Actor actor;
-    private ICredentialsProvider credentialsProvider;
+    private String persona;
+    private PersonaManager personaManager;
+    private CredentialsProvider credentialsProvider;
     @Getter
     private String username;
     @Getter
     private String password;
 
-    public AuthenticateWithCredentials(final ICredentialsProvider credentialsProvider) {
-        this.credentialsProvider = credentialsProvider;
+    public AuthenticateWithCredentials(final String persona) {
+        this.persona = persona;
+    }
+
+    void resolveCredentials() {
+
+        if (null == username) {
+            final Persona sfPersona = personaManager.reservePersonaFor(actor.getName(), persona);
+            final Credentials credentials = credentialsProvider.getCredentialsFor(sfPersona);
+            username = credentials.getUserPrincipal().getName();
+            password = credentials.getPassword();
+        }
     }
 
     public static AuthenticateWithCredentials as(final Actor actor) {
         final AuthenticateWithCredentials credAbility = SafeAbility.as(actor, AuthenticateWithCredentials.class);
-        final Credentials credentials = credAbility.getCredentials();
-        credAbility.username = credentials.getUserPrincipal().getName();
-        credAbility.password = credentials.getPassword();
+        credAbility.resolveCredentials();
         return credAbility;
-    }
-
-    private Credentials getCredentials() {
-        final Persona persona = PersonaBehaviour.of(actor);
-        return credentialsProvider.getCredentialsFor(persona);
     }
 
     @Override
