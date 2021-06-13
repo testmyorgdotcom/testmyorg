@@ -34,7 +34,6 @@ import net.serenitybdd.screenplay.Actor;
 public class CallPartnerSoapApiTest {
     @Rule
     public final ExpectedException exceptionRule = ExpectedException.none();
-
     @Mock
     AuthenticateWithCredentials authInfo;
     @Mock
@@ -44,7 +43,6 @@ public class CallPartnerSoapApiTest {
     Function<ConnectorConfig, PartnerConnection> connectionFactory;
     @Mock
     PartnerConnection mockPartnerConnection;
-
     final String actorName = "Tester";
     final Actor actor = Actor.named(actorName);
     final String otherActorName = "Other Tester";
@@ -71,16 +69,12 @@ public class CallPartnerSoapApiTest {
     @Test
     public void establishesConnection() {
         when(connectionFactory.apply(any())).thenReturn(mockPartnerConnection);
-
         final CallPartnerSoapApi callPartnerApiAbility = CallPartnerSoapApi.as(actor);
-
         try (MockedStatic<AuthenticateWithCredentials> auth = Mockito.mockStatic(AuthenticateWithCredentials.class)) {
             auth.when(() -> AuthenticateWithCredentials.as(actor))
                     .thenReturn(authInfo);
-
             assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
             callPartnerApiAbility.ensureConnection();
-
             assertThat(callPartnerApiAbility.getConnection().isPresent(), is(true));
         }
     }
@@ -88,17 +82,13 @@ public class CallPartnerSoapApiTest {
     @Test
     public void reuseEstablishedConnection() {
         when(connectionFactory.apply(any())).thenReturn(mockPartnerConnection);
-
         final CallPartnerSoapApi callPartnerApiAbility = CallPartnerSoapApi.as(actor);
-
         try (MockedStatic<AuthenticateWithCredentials> auth = Mockito.mockStatic(AuthenticateWithCredentials.class)) {
             auth.when(() -> AuthenticateWithCredentials.as(actor))
                     .thenReturn(authInfo);
-
             assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
             callPartnerApiAbility.ensureConnection();
             callPartnerApiAbility.ensureConnection();
-
             assertThat(callPartnerApiAbility.getConnection().isPresent(), is(true));
             verify(connectionFactory, times(1)).apply(any());
         }
@@ -111,7 +101,6 @@ public class CallPartnerSoapApiTest {
                 CallPartnerSoapApi.class.getSimpleName());
         exceptionRule.expect(AbilityIsAbsentException.class);
         exceptionRule.expectMessage(expectedMessage);
-
         CallPartnerSoapApi.as(actorWithoutAbility);
     }
 
@@ -120,13 +109,10 @@ public class CallPartnerSoapApiTest {
         final String expectedMessage = String.format("Actor: %s has no requested ability: %s",
                 otherActorName,
                 AuthenticateWithCredentials.class.getSimpleName());
-
         exceptionRule.expect(AbilityIsAbsentException.class);
         exceptionRule.expectMessage(expectedMessage);
-
         actorWithoutAbility.can(Call.partnerApi(connectionFactory));
         final CallPartnerSoapApi callPartnerApiAbility = CallPartnerSoapApi.as(actorWithoutAbility);
-
         assertThat(callPartnerApiAbility.getConnection().isPresent(), is(false));
         callPartnerApiAbility.ensureConnection();
     }

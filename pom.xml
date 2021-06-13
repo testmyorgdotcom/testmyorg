@@ -1,227 +1,228 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.testmy.core</groupId>
-	<artifactId>testmyorg</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	<packaging>jar</packaging>
+  <groupId>org.testmy.core</groupId>
+  <artifactId>testmyorg</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-	<name>testmyorg-core</name>
-	<description>TestMyOrg automation testing framework</description>
-	<url>https://github.com/testmyorgdotcom/testmyorg</url>
+  <name>testmyorg-core</name>
+  <description>TestMyOrg automation testing framework</description>
+  <url>https://github.com/testmyorgdotcom/testmyorg</url>
 
-	<licenses>
-		<license>
-			<name>The Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-		</license>
-	</licenses>
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
 
-	<developers>
-		<developer>
-			<name>Alexey Bakshaev</name>
-			<email>alexey.bakshaev@testmy.org</email>
-			<organization>TestMyOrg</organization>
-			<organizationUrl>https://github.com/testmyorgdotcom</organizationUrl>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <name>Alexey Bakshaev</name>
+      <email>alexey.bakshaev@testmy.org</email>
+      <organization>TestMyOrg</organization>
+      <organizationUrl>https://github.com/testmyorgdotcom</organizationUrl>
+    </developer>
+  </developers>
 
-	<scm>
-		<connection>scm:git:git://github.com:testmyorgdotcom/testmyorg.git</connection>
-		<developerConnection>scm:git:ssh://github.com:testmyorgdotcom/testmyorg.git</developerConnection>
-		<url>https://github.com/testmyorgdotcom/testmyorg.git</url>
-	</scm>
+  <scm>
+    <connection>scm:git:git://github.com:testmyorgdotcom/testmyorg.git</connection>
+    <developerConnection>scm:git:ssh://github.com:testmyorgdotcom/testmyorg.git</developerConnection>
+    <url>https://github.com/testmyorgdotcom/testmyorg.git</url>
+  </scm>
 
-	<properties>
-		<!-- configuration -->
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
-		<code.style.version>1.0-SNAPSHOT</code.style.version>
+  <properties>
+    <!-- configuration -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <code.style.version>1.0-SNAPSHOT</code.style.version>
 
-		<!-- plugins -->
-		<maven.dependency.version>3.1.2</maven.dependency.version>
-		<maven.failsafe.version>3.0.0-M5</maven.failsafe.version>
-		<maven.gpg.version>1.5</maven.gpg.version>
-		<maven.javadoc.version>3.3.0</maven.javadoc.version>
-		<maven.source.version>3.2.0</maven.source.version>
-		<maven.surefire.version>3.0.0-M5</maven.surefire.version>
-		<net.revelc.code.formatter.version>2.15.0</net.revelc.code.formatter.version>
+    <!-- plugins -->
+    <maven.dependency.version>3.1.2</maven.dependency.version>
+    <maven.failsafe.version>3.0.0-M5</maven.failsafe.version>
+    <maven.gpg.version>1.5</maven.gpg.version>
+    <maven.javadoc.version>3.3.0</maven.javadoc.version>
+    <maven.source.version>3.2.0</maven.source.version>
+    <maven.surefire.version>3.0.0-M5</maven.surefire.version>
+    <net.revelc.code.formatter.version>2.15.0</net.revelc.code.formatter.version>
 
-		<!-- framework dependencies versions -->
-		<hamcrest.version>2.2</hamcrest.version>
-		<serenity.version>2.4.1</serenity.version>
+    <!-- framework dependencies versions -->
+    <hamcrest.version>2.2</hamcrest.version>
+    <serenity.version>2.4.1</serenity.version>
 
-		<!-- framework provided dependencies versions -->
-		<lombok.version>1.18.18</lombok.version>
-		<salesforce.partnerapi.version>51.2.0</salesforce.partnerapi.version>
-		<slf4j.version>1.7.30</slf4j.version>
+    <!-- framework provided dependencies versions -->
+    <lombok.version>1.18.18</lombok.version>
+    <salesforce.partnerapi.version>51.2.0</salesforce.partnerapi.version>
+    <slf4j.version>1.7.30</slf4j.version>
 
     <!-- test dependencies versions -->
     <junit.version>4.13.1</junit.version>
     <mockito-inline.version>3.8.0</mockito-inline.version>
-	</properties>
+  </properties>
 
-	<dependencies>
-		<!-- framework dependencies -->
-		<dependency>
-			<groupId>net.serenity-bdd</groupId>
-			<artifactId>serenity-screenplay</artifactId>
-			<version>${serenity.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.serenity-bdd</groupId>
-			<artifactId>serenity-screenplay-webdriver</artifactId>
-			<version>${serenity.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hamcrest</groupId>
-			<artifactId>hamcrest</artifactId>
-			<version>${hamcrest.version}</version>
-		</dependency>
-		<!-- framework provided dependencies -->
-		<dependency>
-			<groupId>com.force.api</groupId>
-			<artifactId>force-partner-api</artifactId>
-			<version>${salesforce.partnerapi.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-simple</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<!-- test dependencies -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.serenity-bdd</groupId>
-			<artifactId>serenity-junit</artifactId>
-			<version>${serenity.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-inline</artifactId>
-			<version>${mockito-inline.version}</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <!-- framework dependencies -->
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-screenplay</artifactId>
+      <version>${serenity.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-screenplay-webdriver</artifactId>
+      <version>${serenity.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
+      <version>${hamcrest.version}</version>
+    </dependency>
+    <!-- framework provided dependencies -->
+    <dependency>
+      <groupId>com.force.api</groupId>
+      <artifactId>force-partner-api</artifactId>
+      <version>${salesforce.partnerapi.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- test dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.serenity-bdd</groupId>
+      <artifactId>serenity-junit</artifactId>
+      <version>${serenity.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-inline</artifactId>
+      <version>${mockito-inline.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>${maven.dependency.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>${maven.failsafe.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>${maven.gpg.version}</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven.javadoc.version}</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>${maven.source.version}</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven.surefire.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>net.revelc.code.formatter</groupId>
-				<artifactId>formatter-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>format</goal>
-						</goals>
-						<configuration>
-							<configFile>test-my-org-checkstyle.xml</configFile>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>net.revelc.code.formatter</groupId>
-					<artifactId>formatter-maven-plugin</artifactId>
-					<version>${net.revelc.code.formatter.version}</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.testmy.tools</groupId>
-							<artifactId>formatter-java</artifactId>
-							<version>${code.style.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>${maven.dependency.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven.failsafe.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven.surefire.version}</version>
+      </plugin>
+      <plugin>
+        <groupId>net.revelc.code.formatter</groupId>
+        <artifactId>formatter-maven-plugin</artifactId>
+        <version>${net.revelc.code.formatter.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>format</goal>
+            </goals>
+            <configuration>
+              <configFile>src/main/resources/test-my-org-checkstyle.xml</configFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>ossrh</id>
-			<name>Sonatype Nexus Snapshots</name>
-			<url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-		</snapshotRepository>
-		<repository>
-			<id>sonatype-nexus-staging</id>
-			<name>Nexus Release Repository</name>
-			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-		</repository>
-	</distributionManagement>
+  <distributionManagement>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
+
+  <profiles>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven.gpg.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven.javadoc.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven.source.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>

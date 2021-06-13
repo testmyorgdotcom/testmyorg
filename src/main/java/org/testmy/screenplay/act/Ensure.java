@@ -6,7 +6,6 @@ import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Performable;
 
 public class Ensure implements Performable {
-
     public static Ensure partnerConnection() {
         return new Ensure();
     }

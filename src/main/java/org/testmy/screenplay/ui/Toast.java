@@ -14,5 +14,4 @@ public class Toast {
     public static Target objectName() {
         return Target.the("Toast Created Object Link").locatedBy(BASE_XPATH + "//a");
     }
-
 }

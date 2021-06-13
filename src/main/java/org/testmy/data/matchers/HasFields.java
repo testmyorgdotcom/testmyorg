@@ -16,7 +16,6 @@ public class HasFields extends AllOf<SObject> implements ConstructingMatcher {
 
     public HasFields(final HasField... matchers) {
         super(matchers);
-
         for (final HasField matcher : matchers) {
             objectShape.add(matcher);
         }
@@ -29,7 +28,6 @@ public class HasFields extends AllOf<SObject> implements ConstructingMatcher {
 
     @Override
     public void visitForUpdate(final SObject result) {
-
         for (final ConstructingMatcher cm : objectShape) {
             cm.visitForUpdate(result);
         }

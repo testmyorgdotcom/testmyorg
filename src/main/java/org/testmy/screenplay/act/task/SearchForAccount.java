@@ -62,12 +62,10 @@ public class SearchForAccount implements Task {
     private String constructUrl(String currentUrl,
             String type,
             String id) {
-
         try {
             final URL url = new URL(currentUrl);
             return String.format("%s://%s/lightning/r/%s/%s/view", url.getProtocol(), url.getHost(), type, id);
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             throw new IllegalArgumentException("Incorrect input url: " + currentUrl);
         }
     }

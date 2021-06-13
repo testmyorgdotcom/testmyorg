@@ -18,7 +18,6 @@ public class HasFieldTest {
         final String fieldValue = "FieldValue";
         final SObject sobject = new SObject();
         sobject.setField(fieldName, fieldValue);
-
         assertThat(sobject, hasField(fieldName, fieldValue));
     }
 
@@ -28,7 +27,6 @@ public class HasFieldTest {
         final String fieldValue = null;
         final SObject sobject = new SObject();
         sobject.setField(fieldName, fieldValue);
-
         assertThat(sobject, hasField(fieldName, fieldValue));
     }
 
@@ -39,7 +37,6 @@ public class HasFieldTest {
         final String fieldValueDifferent = "DifferentValue";
         final SObject sobject = new SObject();
         sobject.setField(fieldName, fieldValueDifferent);
-
         assertThat(sobject, not(hasField(fieldName, fieldValue)));
     }
 
@@ -50,14 +47,12 @@ public class HasFieldTest {
         final String fieldValue = "FieldValue";
         final SObject sobject = new SObject();
         sobject.setField(fieldNameDifferent, fieldValue);
-
         assertThat(sobject, not(hasField(fieldName, fieldValue)));
     }
 
     @Test(expected = NullPointerException.class)
     public void exceptionWithNullFieldName() {
         final String fieldValue = "FieldValue";
-
         hasField(null, fieldValue);
     }
 
@@ -66,11 +61,8 @@ public class HasFieldTest {
         final SObject testObject = new SObject();
         final String fieldName = "Name";
         final String fieldValue = "Value";
-
         final HasField fieldShape = hasField(fieldName, fieldValue);
-
         fieldShape.visitForUpdate(testObject);
-
         assertThat(testObject, is(fieldShape));
     }
 
@@ -79,9 +71,7 @@ public class HasFieldTest {
         final SObject testObject = new SObject();
         final String fieldName = "Name";
         final String fieldValue = "Value";
-
         final HasField fieldShape = hasField(fieldName, equalTo(fieldValue));
-
         fieldShape.visitForUpdate(testObject);
     }
 
@@ -89,7 +79,6 @@ public class HasFieldTest {
     public void constructSoqlComponent() {
         final String fieldName = "name", fieldValue = "value";
         final HasField fieldShape = hasField(fieldName, fieldValue);
-
         assertThat(
                 fieldShape.getSoqlComponent().get().getFieldToSelect(),
                 equalTo(soqlComponent(fieldName, fieldValue).getFieldToSelect()));

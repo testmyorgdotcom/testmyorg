@@ -3,7 +3,6 @@ package org.testmy.screenplay.ui;
 import net.serenitybdd.screenplay.targets.Target;
 
 public class AppLauncher {
-
     public static Target icon() {
         return Target.the("App Launcher").locatedBy("//span[text()='App Launcher']/parent::*");
     }

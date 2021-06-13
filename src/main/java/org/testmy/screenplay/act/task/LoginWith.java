@@ -15,7 +15,6 @@ import net.serenitybdd.screenplay.actions.Open;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 
 public class LoginWith implements Task {
-
     public static LoginWith sessionId() {
         return new LoginWith();
     }

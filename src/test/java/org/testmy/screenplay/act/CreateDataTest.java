@@ -31,7 +31,6 @@ public class CreateDataTest {
     @Mock
     Function<SObject[], SaveResult[]> storeFunction;
     TestDataManager testDataManager = new TestDataManager();
-
     Actor mike = Actor.named("Mike");
 
     @Before
@@ -45,20 +44,16 @@ public class CreateDataTest {
 
     @After
     public void after() {
-
     }
 
     @Test
     public void testPerform() {
-
         when(mike).attemptsTo(
                 CreateData.record(ofShape(account(), hasName("accountName")))
                         .withStoreFunction(storeFunction)
                         .withTestDataManager(testDataManager));
-
         final List<SObject> testData = testDataManager.getData();
         assertThat(testData, hasSize(1));
-
         verify(storeFunction).apply(any());
     }
 }

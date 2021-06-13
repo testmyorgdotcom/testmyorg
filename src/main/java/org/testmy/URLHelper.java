@@ -20,33 +20,27 @@ public class URLHelper {
     }
 
     public static String extractMainUrl(final String completeUrl) {
-
         try {
             final URL url = new URL(completeUrl);
             return String.format("%s://%s", url.getProtocol(), url.getHost());
-        }
-        catch (final MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new TestRuntimeException(e);
         }
     }
 
     public static String extractDomain(String completeUrl) {
-
         try {
             final URL url = new URL(completeUrl);
             return url.getHost();
-        }
-        catch (final MalformedURLException e) {
+        } catch (final MalformedURLException e) {
             throw new TestRuntimeException(e);
         }
     }
 
     public static String encode(final String input) {
-
         try {
             return URLEncoder.encode(input, StandardCharsets.UTF_8.toString());
-        }
-        catch (final UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new TestRuntimeException(e);
         }
     }

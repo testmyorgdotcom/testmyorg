@@ -15,7 +15,6 @@ import net.serenitybdd.screenplay.actions.SendKeys;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 
 public class ViaForm implements Interaction, Config {
-
     @Override
     public <T extends Actor> void performAs(T actor) {
         final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);

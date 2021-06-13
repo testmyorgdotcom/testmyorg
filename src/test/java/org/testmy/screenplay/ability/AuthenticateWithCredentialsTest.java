@@ -25,11 +25,9 @@ import net.serenitybdd.screenplay.Actor;
 public class AuthenticateWithCredentialsTest {
     String actorName = "Mike";
     Actor testActor = new Actor(actorName);
-
     String persona = "Sales Manager";
     String testUser = "Test User";
     String testPass = "123456";
-
     @Mock
     private CredentialsProvider credentialsProvider;
     @Mock
@@ -47,10 +45,8 @@ public class AuthenticateWithCredentialsTest {
     @Test
     public void resolveCredentialsForPersonaUsingCredentialsProvider() {
         authInfo.resolveCredentials();
-
         assertThat(authInfo.getUsername(), equalTo(testUser));
         assertThat(authInfo.getPassword(), equalTo(testPass));
-
         verify(personaManager, times(1)).reservePersonaFor(actorName, persona);
         verify(credentialsProvider, times(1)).getCredentialsFor(any());
     }
@@ -61,7 +57,6 @@ public class AuthenticateWithCredentialsTest {
         IntStream.range(0, numOfResolveCalls).forEach(i -> {
             authInfo.resolveCredentials();
         });
-
         verify(personaManager, times(1)).reservePersonaFor(actorName, persona);
         verify(credentialsProvider, times(1)).getCredentialsFor(any());
     }

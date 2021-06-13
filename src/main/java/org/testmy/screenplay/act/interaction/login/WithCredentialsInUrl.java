@@ -18,18 +18,14 @@ import net.serenitybdd.screenplay.questions.WebElementQuestion;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 
 public class WithCredentialsInUrl implements Interaction, Config {
-
     @Override
     public <T extends Actor> void performAs(T actor) {
         final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
         final AuthenticateWithCredentials credentials = AuthenticateWithCredentials.as(actor);
         final String password = URLHelper.encode(credentials.getPassword());
         final String username = URLHelper.encode(credentials.getUsername());
-
         final String targetUrl = String.format(PATTERN_URL_LOGIN_WITH_CREDENTIALS, loginUrl, username, password);
-
         System.err.println("Target URL: " + targetUrl);
-
         actor.attemptsTo(
                 Open.url(targetUrl),
                 Check.whether(WebElementQuestion.stateOf(LoginForm.continueButton()), isVisible()).andIfSo(
