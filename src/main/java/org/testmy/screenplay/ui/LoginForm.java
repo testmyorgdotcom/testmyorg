@@ -3,7 +3,6 @@ package org.testmy.screenplay.ui;
 import net.serenitybdd.screenplay.targets.Target;
 
 public class LoginForm {
-
     public static Target usernameInput() {
         return Target.the("Username Input")
                 .locatedBy("//*[@id='username']");

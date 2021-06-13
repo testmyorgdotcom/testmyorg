@@ -10,14 +10,11 @@ import org.testmy.error.TestRuntimeException;
 import org.testmy.screenplay.ability.CallPartnerSoapApi;
 
 public class Call {
-
     public static CallPartnerSoapApi partnerApi() {
         return partnerApi((config) -> {
-
             try {
                 return new PartnerConnection(config);
-            }
-            catch (final ConnectionException e) {
+            } catch (final ConnectionException e) {
                 throw new TestRuntimeException(e);
             }
         });

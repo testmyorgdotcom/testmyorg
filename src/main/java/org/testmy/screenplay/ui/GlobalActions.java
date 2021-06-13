@@ -3,7 +3,6 @@ package org.testmy.screenplay.ui;
 import net.serenitybdd.screenplay.targets.Target;
 
 public class GlobalActions {
-
     public static Target createButton() {
         return Target.the("Global Actions: Create Button")
                 .locatedBy("//header//ul/li//a[contains(@class, 'globalCreateTrigger')]");
@@ -23,5 +22,4 @@ public class GlobalActions {
         return Target.the("Global Actions: Create " + globalActionName)
                 .locatedBy("//div[contains(@class, 'slds-docked-composer')]//h2[@title='" + globalActionName + "']");
     }
-
 }

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.testmy.core</groupId>
@@ -60,9 +58,9 @@
 		<salesforce.partnerapi.version>51.2.0</salesforce.partnerapi.version>
 		<slf4j.version>1.7.30</slf4j.version>
 
-    <!-- test dependencies versions -->
-    <junit.version>4.13.1</junit.version>
-    <mockito-inline.version>3.8.0</mockito-inline.version>
+		<!-- test dependencies versions -->
+		<junit.version>4.13.1</junit.version>
+		<mockito-inline.version>3.8.0</mockito-inline.version>
 	</properties>
 
 	<dependencies>
@@ -136,65 +134,26 @@
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-gpg-plugin</artifactId>
-				<version>${maven.gpg.version}</version>
-				<executions>
-					<execution>
-						<id>sign-artifacts</id>
-						<phase>verify</phase>
-						<goals>
-							<goal>sign</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>${maven.javadoc.version}</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>${maven.source.version}</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar-no-fork</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${maven.surefire.version}</version>
 			</plugin>
 			<plugin>
 				<groupId>net.revelc.code.formatter</groupId>
 				<artifactId>formatter-maven-plugin</artifactId>
+				<version>${net.revelc.code.formatter.version}</version>
 				<executions>
 					<execution>
 						<goals>
 							<goal>format</goal>
 						</goals>
 						<configuration>
-							<configFile>test-my-org-checkstyle.xml</configFile>
+							<configFile>src/main/resources/test-my-org-checkstyle.xml</configFile>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
-		<pluginManagement>
+		<!-- <pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>net.revelc.code.formatter</groupId>
@@ -209,7 +168,7 @@
 					</dependencies>
 				</plugin>
 			</plugins>
-		</pluginManagement>
+		</pluginManagement> -->
 	</build>
 
 	<distributionManagement>
@@ -224,4 +183,60 @@
 			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
 	</distributionManagement>
+
+	<profiles>
+		<profile>
+			<id>release</id>
+			<build>
+				<plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven.gpg.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+                <configuration>
+                  <gpgArguments>
+                    <arg>--pinentry-mode</arg>
+                    <arg>loopback</arg>
+                  </gpgArguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>${maven.javadoc.version}</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven.source.version}</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

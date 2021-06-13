@@ -27,11 +27,9 @@ public class CreateData implements Task {
     @Setter
     private Function<SObject[], SaveResult[]> storeFunction = so -> {
         SaveResult[] result = new SaveResult[0];
-
         try {
             result = connectionSupplier.get().create(so);
-        }
-        catch (final ConnectionException e) {
+        } catch (final ConnectionException e) {
             e.printStackTrace();
             throw new IllegalStateException(e); // TODO: change to a dedicated exception
         }

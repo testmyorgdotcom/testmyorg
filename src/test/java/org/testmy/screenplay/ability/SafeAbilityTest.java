@@ -17,7 +17,6 @@ import net.serenitybdd.screenplay.RefersToActor;
 public class SafeAbilityTest {
     @Rule
     public ExpectedException exceptionRule = ExpectedException.none();
-
     Actor actorWithAbility = Actor.named("Creator");
     Actor actorWithoutAbility = Actor.named("Heart-Breaker");
 
@@ -52,5 +51,4 @@ public class SafeAbilityTest {
             return (T) this;
         }
     }
-
 }

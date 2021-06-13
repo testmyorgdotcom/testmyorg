@@ -13,13 +13,11 @@ public class SoqlBuilder {
 
     public SoqlBuilder(final SoqlComponent... soqlComponents) {
         boolean mandatoryComponentFound = false;
-
         for (final SoqlComponent sc : soqlComponents) {
             this.soqlComponents.add(sc);
             mandatoryComponentFound = mandatoryComponentFound || MANDATORY_TYPE_COMPONENT.equals(sc.getFieldName());
             hasIdComponent = hasIdComponent || ID_COMPONENT.equals(sc.getFieldName());
         }
-
         if (!mandatoryComponentFound) {
             this.soqlComponents.clear();
             throw new IllegalArgumentException("mandatory component was not passed: " + MANDATORY_TYPE_COMPONENT);
@@ -37,7 +35,6 @@ public class SoqlBuilder {
                 .append(buildSelectPart())
                 .append(" FROM ")
                 .append(buildFromPart());
-
         if (!whereCondition.isEmpty()) {
             sb
                     .append(" WHERE ")
@@ -72,9 +69,7 @@ public class SoqlBuilder {
     }
 
     public String buildFromPart() {
-
         for (final SoqlComponent soqlComponent : soqlComponents) {
-
             if (MANDATORY_TYPE_COMPONENT.equals(soqlComponent.getFieldName())) {
                 return soqlComponent.getObjectToSelectFrom();
             }

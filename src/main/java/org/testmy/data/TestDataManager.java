@@ -56,7 +56,6 @@ public class TestDataManager {
 
     public void cacheExistingShape(final ConstructingMatcher ofShape) {
         final SObject sObject = constructSObject(ofShape);
-
         if (!hasId().matches(sObject)) {
             throw new IllegalArgumentException("Cannot add objects without Id: " + sObject);
         }

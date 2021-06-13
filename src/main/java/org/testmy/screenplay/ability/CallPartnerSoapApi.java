@@ -25,7 +25,6 @@ public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
     }
 
     public PartnerConnection ensureConnection() {
-
         if (!connection.isPresent()) {
             final ConnectorConfig config = setupConfig();
             this.connection = Optional.of(connectionFactory.apply(config));
@@ -47,7 +46,6 @@ public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
         final String partnerApiVersion = System.getProperty(PROPERTY_VERSION_API_SOAP_PARTNER,
                 PROPERTY_DEFAULT_VERSION_API_SOAP_PARTNER);
         return String.format(PATTERN_URL_PARTNER_SOAP_API, loginUrl, partnerApiVersion);
-
     }
 
     public static CallPartnerSoapApi as(final Actor actor) {

@@ -31,19 +31,16 @@ public class CleanData implements Performable {
                 .map(s -> s.getId())
                 .collect(Collectors.toList())
                 .toArray(new String[0]);
-
         try {
             System.out.println("Going to delete: " + Arrays.asList(ids));
             final DeleteResult[] deleteResults = connection.delete(ids);
             final List<DeleteResult> nonDeletedObjects = Arrays.asList(deleteResults).stream()
                     .filter(dr -> !dr.getSuccess())
                     .collect(Collectors.toList());
-
             if (!nonDeletedObjects.isEmpty()) {
                 System.err.println("Could not delete: " + nonDeletedObjects); // TODO: move to loggers
             }
-        }
-        catch (ConnectionException e) {
+        } catch (ConnectionException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }

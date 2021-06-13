@@ -25,7 +25,6 @@ public class AuthenticateWithCredentials implements Ability, RefersToActor {
     }
 
     void resolveCredentials() {
-
         if (null == username) {
             final Persona sfPersona = personaManager.reservePersonaFor(actor.getName(), persona);
             final Credentials credentials = credentialsProvider.getCredentialsFor(sfPersona);

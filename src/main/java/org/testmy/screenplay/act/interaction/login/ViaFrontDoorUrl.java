@@ -15,16 +15,13 @@ import net.serenitybdd.screenplay.actions.Open;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 
 public class ViaFrontDoorUrl implements Interaction, Config {
-
     @Override
     public <T extends Actor> void performAs(T actor) {
         final ConnectorConfig connectorConfig = CallPartnerSoapApi.as(actor).ensureConnection().getConfig();
         final String endPointUrl = connectorConfig.getServiceEndpoint();
         final String loginUrl = URLHelper.extractMainUrl(endPointUrl);
         final String sessionId = connectorConfig.getSessionId();
-
         final String targetUrl = String.format(PATTERN_URL_LOGIN_VIA_FRONTDOOR, loginUrl, sessionId);
-
         actor.attemptsTo(
                 Open.url(targetUrl),
                 WaitUntil.the(WebPage.loadingLogo(), isNotVisible()));

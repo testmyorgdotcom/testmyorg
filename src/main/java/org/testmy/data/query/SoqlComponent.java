@@ -21,7 +21,6 @@ public class SoqlComponent {
     public SoqlComponent(final String fieldName,
             final Object fieldValue) {
         this.fieldName = fieldName;
-
         if (!MANDATORY_TYPE_COMPONENT.equals(fieldName)) {
             whereSupplier = () -> fieldName + " = '" + fieldValue + "'";
             selectSupplier = () -> fieldName;

@@ -3,7 +3,6 @@ package org.testmy.screenplay.ui;
 import net.serenitybdd.screenplay.targets.Target;
 
 public class NewContact {
-
     public static Target quickActionButton() {
         return Target.the("New Contact - quick action").locatedBy("//button[@name='Global.NewContact']");
     }

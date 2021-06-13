@@ -38,7 +38,6 @@ public class GlobalSearch implements Performable {
                 WaitUntil.the(GlobalSearchResult.withName(itemToSearch), isClickable()),
                 Click.on(GlobalSearchResult.withName(itemToSearch)),
                 WaitUntil.the(WebPage.loadingLogo(), isNotVisible()));
-
     }
 
     public static Target input() {
