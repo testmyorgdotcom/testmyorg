@@ -43,7 +43,8 @@ public class CreateDataTest {
     }
 
     @After
-    public void after() {}
+    public void after() {
+    }
 
     @Test
     public void testPerform() {

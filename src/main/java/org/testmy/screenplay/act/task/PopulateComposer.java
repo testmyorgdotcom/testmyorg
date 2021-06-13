@@ -11,5 +11,6 @@ public class PopulateComposer implements Interaction {
     }
 
     @Override
-    public <T extends Actor> void performAs(T actor) {}
+    public <T extends Actor> void performAs(T actor) {
+    }
 }
