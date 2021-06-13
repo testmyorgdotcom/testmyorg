@@ -153,22 +153,6 @@
 				</executions>
 			</plugin>
 		</plugins>
-		<!-- <pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>net.revelc.code.formatter</groupId>
-					<artifactId>formatter-maven-plugin</artifactId>
-					<version>${net.revelc.code.formatter.version}</version>
-					<dependencies>
-						<dependency>
-							<groupId>org.testmy.tools</groupId>
-							<artifactId>formatter-java</artifactId>
-							<version>${code.style.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-			</plugins>
-		</pluginManagement> -->
 	</build>
 
 	<distributionManagement>
