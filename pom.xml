@@ -47,6 +47,7 @@
     <maven.failsafe.version>3.0.0-M5</maven.failsafe.version>
     <maven.gpg.version>1.5</maven.gpg.version>
     <maven.javadoc.version>3.3.0</maven.javadoc.version>
+    <maven.release.version>3.0.0-M4</maven.release.version>
     <maven.source.version>3.2.0</maven.source.version>
     <maven.surefire.version>3.0.0-M5</maven.surefire.version>
     <net.revelc.code.formatter.version>2.15.0</net.revelc.code.formatter.version>
@@ -195,6 +196,14 @@
               </execution>
             </executions>
           </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>${maven.release.version}</version>
+            <configuration>
+              <tagNameFormat>v@{project.version}</tagNameFormat>
+            </configuration>
+          </plugin>          
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
