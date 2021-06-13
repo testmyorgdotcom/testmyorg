@@ -30,7 +30,7 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/testmyorgdotcom/testmyorg.git</connection>
+    <connection>scm:git:ssh://github.com/testmyorgdotcom/testmyorg.git</connection>
     <developerConnection>scm:git:ssh://github.com/testmyorgdotcom/testmyorg.git</developerConnection>
     <url>https://github.com/testmyorgdotcom/testmyorg.git</url>
   </scm>
