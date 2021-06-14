@@ -6,10 +6,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
 
 import org.hamcrest.Matcher;
@@ -26,15 +24,12 @@ public class TestDataManager {
         sObjects.add(object);
     }
 
-    public SObject ensureObject(
-            final ConstructingMatcher sObjectShape,
-            final Function<SObject[], SaveResult[]> storeFunction) {
+    public SObject ensureObject(final ConstructingMatcher sObjectShape,
+            final SalesforceDataAction salesforceAction) {
         return findObject(sObjectShape).orElseGet(() -> {
             final SObject result = constructSObject(sObjectShape);
-            final SaveResult[] saveResults = storeFunction.apply(new SObject[] {
-                    result
-            });
-            result.setId(saveResults[0].getId());
+            final String sfId = salesforceAction.insert(result);
+            result.setId(sfId);
             addToCache(result);
             return result;
         });

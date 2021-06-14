@@ -17,6 +17,7 @@ public interface Config {
     String PATTERN_URL_PARTNER_SOAP_API = "%s/services/Soap/u/%s";
     // messages
     String PATTERN_MESSAGE_ERROR_CONSTRUCT_ATTRIBUTE_MISSING = "Object Shape is without mandatory %s attribute: %s";
+    String PATTERN_MESSAGE_ERROR_ABILITY_IS_MISSING_FOR_ACTOR = "Actor: %s has no requested ability: %s";
     // Global Actions
     String GLOBAL_ACTION_NEW_CASE = "New Case";
     String GLOBAL_ACTION_NEW_CONTACT = "New Contact";

@@ -33,13 +33,10 @@ public class CreateContact implements Task {
                 Click.on(NewContact.quickActionButton()),
                 WaitUntil.the(NewContact.quickActionLayout(), isVisible()),
                 SendKeys.of(lastName).into(LastName.input()),
-                // Click.on(Save.button()),
                 KeyboardShortcuts.save(),
                 WaitUntil.the(Toast.success(), isVisible()),
                 Click.on(Toast.objectName()),
                 WaitUntil.the(WebPage.loadingLogo(), isNotVisible()),
                 StoreObjectAtScene.intoDataCache());
-        // final WebDriver wd = actor.abilityTo(BrowseTheWeb.class).getDriver();
-        // final String wd.getCurrentUrl();
     }
 }

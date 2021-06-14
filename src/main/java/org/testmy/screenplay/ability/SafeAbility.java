@@ -1,17 +1,16 @@
 package org.testmy.screenplay.ability;
 
+import org.testmy.config.Config;
 import org.testmy.error.AbilityIsAbsentException;
 
-import net.serenitybdd.screenplay.Ability;
 import net.serenitybdd.screenplay.Actor;
-import net.serenitybdd.screenplay.RefersToActor;
 
-class SafeAbility {
-    public static <T extends Ability & RefersToActor> T as(Actor actorWithAbility,
+public class SafeAbility implements Config {
+    public static <T extends SalesforceAbility> T as(Actor actorWithAbility,
             Class<T> abilityClass) {
         final T ability = actorWithAbility.abilityTo(abilityClass);
         if (null == ability) {
-            throw new AbilityIsAbsentException(String.format("Actor: %s has no requested ability: %s",
+            throw new AbilityIsAbsentException(String.format(PATTERN_MESSAGE_ERROR_ABILITY_IS_MISSING_FOR_ACTOR,
                     actorWithAbility.getName(), abilityClass.getSimpleName()));
         }
         ability.asActor(actorWithAbility);

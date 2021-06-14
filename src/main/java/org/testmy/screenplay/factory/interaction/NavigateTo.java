@@ -1,4 +1,4 @@
-package org.testmy.screenplay.factory.ability;
+package org.testmy.screenplay.factory.interaction;
 
 import org.testmy.screenplay.act.interaction.navigate.NavigateToApp;
 
