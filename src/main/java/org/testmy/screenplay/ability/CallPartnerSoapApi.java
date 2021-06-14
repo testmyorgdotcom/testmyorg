@@ -11,12 +11,11 @@ import org.testmy.config.Config;
 import lombok.Getter;
 import net.serenitybdd.screenplay.Ability;
 import net.serenitybdd.screenplay.Actor;
-import net.serenitybdd.screenplay.RefersToActor;
 
-public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
-    @Getter
+public class CallPartnerSoapApi implements SalesforceAbility, Config {
+    AbilityProvider abilityProvider = AbilityProvider.getInstance();
+    Function<ConnectorConfig, PartnerConnection> connectionFactory;
     private Actor actor;
-    private Function<ConnectorConfig, PartnerConnection> connectionFactory;
     @Getter
     private Optional<PartnerConnection> connection = Optional.empty();
 
@@ -33,7 +32,8 @@ public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
     }
 
     private ConnectorConfig setupConfig() {
-        final AuthenticateWithCredentials credentials = AuthenticateWithCredentials.as(actor);
+        final AuthenticateWithCredentials credentials = abilityProvider.as(actor, AuthenticateWithCredentials.class);
+        credentials.resolveCredentials();
         final ConnectorConfig config = new ConnectorConfig();
         config.setUsername(credentials.getUsername());
         config.setPassword(credentials.getPassword());
@@ -48,11 +48,8 @@ public class CallPartnerSoapApi implements Ability, RefersToActor, Config {
         return String.format(PATTERN_URL_PARTNER_SOAP_API, loginUrl, partnerApiVersion);
     }
 
-    public static CallPartnerSoapApi as(final Actor actor) {
-        return SafeAbility.as(actor, CallPartnerSoapApi.class);
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Ability> T asActor(Actor actor) {
         this.actor = actor;
         return (T) this;

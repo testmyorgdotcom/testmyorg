@@ -1,7 +1,8 @@
 package org.testmy.screenplay.ability;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,7 +14,6 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.persona.PersonaManager;
@@ -24,40 +24,61 @@ import net.serenitybdd.screenplay.Actor;
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticateWithCredentialsTest {
     String actorName = "Mike";
-    Actor testActor = new Actor(actorName);
-    String persona = "Sales Manager";
+    Actor mike = new Actor(actorName);
     String testUser = "Test User";
     String testPass = "123456";
     @Mock
     private CredentialsProvider credentialsProvider;
     @Mock
     private PersonaManager personaManager;
-    @InjectMocks
-    final AuthenticateWithCredentials authInfo = new AuthenticateWithCredentials(persona);
 
     @Before
     public void before() {
-        authInfo.asActor(testActor);
         when(credentialsProvider.getCredentialsFor(any()))
                 .thenReturn(new UsernamePasswordCredentials(testUser, testPass));
     }
 
     @Test
-    public void resolveCredentialsForPersonaUsingCredentialsProvider() {
+    public void resolveCredentials_usesPersonaManagerToFindPersonaForActor() {
+        final String salesManagerPersonaName = "Sales Manager";
+        final AuthenticateWithCredentials authInfo = getAuthenticateAbilityWithMocksInjected(salesManagerPersonaName);
         authInfo.resolveCredentials();
-        assertThat(authInfo.getUsername(), equalTo(testUser));
-        assertThat(authInfo.getPassword(), equalTo(testPass));
-        verify(personaManager, times(1)).reservePersonaFor(actorName, persona);
-        verify(credentialsProvider, times(1)).getCredentialsFor(any());
+        verify(personaManager).reservePersonaFor(actorName, salesManagerPersonaName);
     }
 
     @Test
-    public void avoidResolvingIfUsernamePasswordAreAvailableAlready() {
+    public void resolveCredentials_usesCredentilasProviderToGetAuthInfoForPersona() {
+        final AuthenticateWithCredentials authInfo = getAuthenticateAbilityWithMocksInjected("Admin");
+        authInfo.resolveCredentials();
+        verify(credentialsProvider).getCredentialsFor(any());
+    }
+
+    @Test
+    public void resolveCredentials_storesResolvedUsernameAndPassword() {
+        final AuthenticateWithCredentials authInfo = getAuthenticateAbilityWithMocksInjected("Admin");
+        assertThat(authInfo.getUsername(), is(nullValue()));
+        authInfo.resolveCredentials();
+        assertThat(authInfo.getUsername(), is(testUser));
+        assertThat(authInfo.getPassword(), is(testPass));
+    }
+
+    @Test
+    public void resolveCredentials_doesNotCallServicesIfUsernameAndPasswordAreResolvedAlready() {
+        final String adminPersonaName = "Admin";
+        final AuthenticateWithCredentials authInfo = getAuthenticateAbilityWithMocksInjected(adminPersonaName);
         final Integer numOfResolveCalls = 10;
         IntStream.range(0, numOfResolveCalls).forEach(i -> {
             authInfo.resolveCredentials();
         });
-        verify(personaManager, times(1)).reservePersonaFor(actorName, persona);
+        verify(personaManager, times(1)).reservePersonaFor(actorName, adminPersonaName);
         verify(credentialsProvider, times(1)).getCredentialsFor(any());
+    }
+
+    private AuthenticateWithCredentials getAuthenticateAbilityWithMocksInjected(String salesManagerPersonaName) {
+        final AuthenticateWithCredentials authInfo = new AuthenticateWithCredentials(salesManagerPersonaName);
+        authInfo.personaManager = personaManager;
+        authInfo.credentialsProvider = credentialsProvider;
+        authInfo.asActor(mike);
+        return authInfo;
     }
 }

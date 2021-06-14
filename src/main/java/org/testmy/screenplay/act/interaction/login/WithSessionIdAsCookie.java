@@ -8,6 +8,7 @@ import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.testmy.URLHelper;
 import org.testmy.config.Config;
+import org.testmy.screenplay.ability.AbilityProvider;
 import org.testmy.screenplay.ability.CallPartnerSoapApi;
 import org.testmy.screenplay.ui.WebPage;
 
@@ -18,9 +19,12 @@ import net.serenitybdd.screenplay.actions.Open;
 import net.serenitybdd.screenplay.waits.WaitUntil;
 
 public class WithSessionIdAsCookie implements Interaction, Config {
+    AbilityProvider abilityProvider = AbilityProvider.getInstance();
+
     @Override
     public <T extends Actor> void performAs(T actor) {
-        final ConnectorConfig connectorConfig = CallPartnerSoapApi.as(actor).ensureConnection().getConfig();
+        final CallPartnerSoapApi callApiAbility = abilityProvider.as(actor, CallPartnerSoapApi.class);
+        final ConnectorConfig connectorConfig = callApiAbility.ensureConnection().getConfig();
         final String endPointUrl = connectorConfig.getServiceEndpoint();
         final String mainUrl = URLHelper.extractMainUrl(endPointUrl);
         final String domain = URLHelper.extractDomain(mainUrl);

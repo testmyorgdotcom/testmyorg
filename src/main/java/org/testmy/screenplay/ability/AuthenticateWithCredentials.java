@@ -8,13 +8,15 @@ import org.testmy.persona.auth.CredentialsProvider;
 import lombok.Getter;
 import net.serenitybdd.screenplay.Ability;
 import net.serenitybdd.screenplay.Actor;
-import net.serenitybdd.screenplay.RefersToActor;
+import net.thucydides.core.annotations.Shared;
 
-public class AuthenticateWithCredentials implements Ability, RefersToActor {
+public class AuthenticateWithCredentials implements SalesforceAbility {
     private Actor actor;
     private String persona;
-    private PersonaManager personaManager;
-    private CredentialsProvider credentialsProvider;
+    @Shared
+    PersonaManager personaManager;
+    @Shared
+    CredentialsProvider credentialsProvider;
     @Getter
     private String username;
     @Getter
@@ -24,7 +26,7 @@ public class AuthenticateWithCredentials implements Ability, RefersToActor {
         this.persona = persona;
     }
 
-    void resolveCredentials() {
+    public void resolveCredentials() {
         if (null == username) {
             final Persona sfPersona = personaManager.reservePersonaFor(actor.getName(), persona);
             final Credentials credentials = credentialsProvider.getCredentialsFor(sfPersona);
@@ -33,13 +35,8 @@ public class AuthenticateWithCredentials implements Ability, RefersToActor {
         }
     }
 
-    public static AuthenticateWithCredentials as(final Actor actor) {
-        final AuthenticateWithCredentials credAbility = SafeAbility.as(actor, AuthenticateWithCredentials.class);
-        credAbility.resolveCredentials();
-        return credAbility;
-    }
-
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends Ability> T asActor(Actor actor) {
         this.actor = actor;
         return (T) this;

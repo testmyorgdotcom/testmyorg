@@ -12,7 +12,6 @@ import org.testmy.error.AbilityIsAbsentException;
 
 import net.serenitybdd.screenplay.Ability;
 import net.serenitybdd.screenplay.Actor;
-import net.serenitybdd.screenplay.RefersToActor;
 
 public class SafeAbilityTest {
     @Rule
@@ -41,12 +40,13 @@ public class SafeAbilityTest {
         SafeAbility.as(actorWithoutAbility, TestAbility.class);
     }
 
-    public static class TestAbility implements Ability, RefersToActor {
+    public static class TestAbility implements SalesforceAbility {
         public static TestAbility obtain() {
             return new TestAbility();
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public <T extends Ability> T asActor(Actor actor) {
             return (T) this;
         }

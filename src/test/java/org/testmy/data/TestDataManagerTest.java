@@ -16,10 +16,9 @@ import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
 
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.UUID;
 import java.util.stream.IntStream;
 
-import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
 
 import org.hamcrest.Matcher;
@@ -34,15 +33,13 @@ import org.testmy.data.matchers.ConstructingMatcher;
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
     @Mock
-    private Function<SObject[], SaveResult[]> storeToSalesforce;
+    private SalesforceDataAction salesforceAction;
     @InjectMocks
     private TestDataManager dataManagerUnderTest;
 
     @Before
     public void before() {
-        when(storeToSalesforce.apply(any())).thenReturn(new SaveResult[] {
-                new SaveResult()
-        });
+        when(salesforceAction.insert(any())).thenReturn(UUID.randomUUID().toString());
     }
 
     @Test
@@ -58,7 +55,7 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void findsObjectByMathcer() {
+    public void findObject_usesMatcher() {
         final String fieldName = "field", fieldValue = "value";
         final Matcher<SObject> objectShape = hasField(fieldName, fieldValue);
         final SObject objInCache = new SObject();
@@ -70,78 +67,63 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void createsObjectIfNotExistsWithASimilarShape() {
+    public void ensureObject_createsObjectIfNotExistsWithASimilarShape() {
         final String fieldName = "field", fieldValue = "value";
         final ConstructingMatcher sObjectShape = hasField(fieldName, fieldValue);
-        final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, storeToSalesforce);
+        final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
         assertThat(sObject, is(sObjectShape));
     }
 
     @Test
-    public void storesCreatedObjectInCache() {
+    public void ensureObject_storesCreatedObjectInCache() {
         final String fieldName = "field", fieldValue = "value";
         final ConstructingMatcher sObjectShape = hasField(fieldName, fieldValue);
-        final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, storeToSalesforce);
+        final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
         assertThat(dataManagerUnderTest.getData().contains(sObject), is(true));
     }
 
     @Test
-    public void createsObjectInSalesforce() {
+    public void ensureObject_createsObjectInSalesforce() {
         final String sfId = "Salesforce Id";
-        final SaveResult sr = new SaveResult();
-        sr.setId(sfId);
         final String clientName = "Test Client";
-        final ConstructingMatcher clientShape = ofShape(
-                account(),
-                hasName(clientName));
-        when(storeToSalesforce.apply(any())).thenReturn(new SaveResult[] {
-                sr
-        });
-        final SObject sObject = dataManagerUnderTest.ensureObject(clientShape, storeToSalesforce);
-        assertThat(sObject, hasId());
+        final ConstructingMatcher clientShape = ofShape(account(), hasName(clientName));
+        when(salesforceAction.insert(any())).thenReturn(sfId);
+        final SObject sObject = dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
+        assertThat(sObject, hasId(sfId));
     }
 
     @Test(expected = UnsupportedOperationException.class)
-    public void notYetSupportedFieldValuesShapes() {
+    public void ensureObject_notYetSupportedFieldValuesShapes() {
         final String fieldName = "field", fieldValue = "value";
         final Matcher<String> fieldValueShape = is(equalTo(fieldValue));
         final ConstructingMatcher sObjectShape = hasField(fieldName, fieldValueShape);
-        dataManagerUnderTest.ensureObject(sObjectShape, storeToSalesforce);
+        dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
     }
 
     @Test
-    public void addDataToCacheIfWithIdAndType() {
-        final ConstructingMatcher ofShape = ofShape(
-                account(),
-                hasId("003xyz..."),
-                hasName("Test Client"));
+    public void cacheExistingShape_addDataToCacheDirectlySKippingStoreInSalesforce() {
+        final ConstructingMatcher ofShape = ofShape(account(), hasId("003xyz..."), hasName("Test Client"));
         dataManagerUnderTest.cacheExistingShape(ofShape);
         assertThat(dataManagerUnderTest.findObject(ofShape).isPresent(), is(true));
         assertThat(dataManagerUnderTest.findObject(ofShape).get(), ofShape);
-        verify(storeToSalesforce, never()).apply(any());
+        verify(salesforceAction, never()).insert(any());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void failAddIfIdIsMissing() {
-        final ConstructingMatcher ofShape = ofShape(
-                account(),
-                hasName("Test Client"));
+    public void cacheExistingShape_failIfTypeIsMissing() {
+        final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
         dataManagerUnderTest.cacheExistingShape(ofShape);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void failAddIfTypeIsMissing() {
-        final ConstructingMatcher ofShape = ofShape(
-                hasId("003xyz..."),
-                hasName("Test Client"));
+    public void cacheExistingShape_failIfIdIsMissing() {
+        final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
         dataManagerUnderTest.cacheExistingShape(ofShape);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void failConstructionIfWithoutType() {
-        final ConstructingMatcher ofShape = ofShape(
-                hasId("003xyz..."),
-                hasName("Test Client"));
+    public void constructSObject_faileIfTypeIsMissing() {
+        final ConstructingMatcher ofShape = ofShape(hasId("003xyz..."), hasName("Test Client"));
         dataManagerUnderTest.constructSObject(ofShape);
     }
 }
