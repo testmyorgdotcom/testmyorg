@@ -18,6 +18,7 @@ public interface Config {
     // messages
     String PATTERN_MESSAGE_ERROR_CONSTRUCT_ATTRIBUTE_MISSING = "Object Shape is without mandatory %s attribute: %s";
     String PATTERN_MESSAGE_ERROR_ABILITY_IS_MISSING_FOR_ACTOR = "Actor: %s has no requested ability: %s";
+    String PATTERN_MESSAGE_ERROR_NO_DATA_FOR_QUERY = "No any records found for query[%s]";
     // formats
     String FORMAT_DATE_FIELD = "yyyy-MM-dd";
     // Global Actions
