@@ -18,6 +18,8 @@ public interface Config {
     // messages
     String PATTERN_MESSAGE_ERROR_CONSTRUCT_ATTRIBUTE_MISSING = "Object Shape is without mandatory %s attribute: %s";
     String PATTERN_MESSAGE_ERROR_ABILITY_IS_MISSING_FOR_ACTOR = "Actor: %s has no requested ability: %s";
+    // formats
+    String FORMAT_DATE_FIELD = "yyyy-MM-dd";
     // Global Actions
     String GLOBAL_ACTION_NEW_CASE = "New Case";
     String GLOBAL_ACTION_NEW_CONTACT = "New Contact";
@@ -30,5 +32,9 @@ public interface Config {
     String OBJECT_CONTACT = "Contact";
     String OBJECT_EVENT = "Event";
     String OBJECT_LEAD = "Lead";
+    String OBJECT_OPPORTUNITY = "Opportunity";
     String OBJECT_TASK = "Task";
+    // Field Names
+    String FIELD_RECORDTYPE_DEVELOPERNAME = "RecordType.DeveloperName";
+    String FIELD_RECORDTYPEID = "RecordTypeId";
 }

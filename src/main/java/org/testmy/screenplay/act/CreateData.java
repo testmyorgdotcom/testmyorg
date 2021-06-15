@@ -8,11 +8,13 @@ import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.screenplay.ability.AbilityProvider;
 import org.testmy.screenplay.ability.CallPartnerSoapApi;
 
+import lombok.NoArgsConstructor;
 import net.serenitybdd.core.steps.Instrumented;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Task;
 import net.thucydides.core.annotations.Shared;
 
+@NoArgsConstructor
 public class CreateData implements Task {
     AbilityProvider abilityProvider = AbilityProvider.getInstance();
     @Shared

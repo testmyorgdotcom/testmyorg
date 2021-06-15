@@ -4,10 +4,11 @@ import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.not;
 
 import org.hamcrest.Matcher;
+import org.testmy.config.Config;
 
 public class Matchers {
     public static HasField hasField(final String fieldName,
-            final String fieldValue) {
+            final Object fieldValue) {
         return new HasField(fieldName, fieldValue);
     }
 
@@ -26,6 +27,10 @@ public class Matchers {
 
     public static HasField hasName(final String name) {
         return new HasField("Name", name);
+    }
+
+    public static HasField hasRecordTypeName(final String recordTypeName) {
+        return new HasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, recordTypeName);
     }
 
     public static HasFields ofShape(HasField... matchers) {

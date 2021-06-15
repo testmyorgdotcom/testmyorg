@@ -1,6 +1,10 @@
 package org.testmy.data.query;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.function.Supplier;
+
+import org.testmy.config.Config;
 
 import lombok.Getter;
 
@@ -23,6 +27,10 @@ public class SoqlComponent {
         this.fieldName = fieldName;
         if (!MANDATORY_TYPE_COMPONENT.equals(fieldName)) {
             whereSupplier = () -> fieldName + " = '" + fieldValue + "'";
+            if (fieldValue instanceof Date) {
+                whereSupplier = () -> fieldName + " = "
+                        + new SimpleDateFormat(Config.FORMAT_DATE_FIELD).format(fieldValue);
+            }
             selectSupplier = () -> fieldName;
         }
         else {

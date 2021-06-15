@@ -11,9 +11,14 @@ import java.util.stream.Collectors;
 import com.sforce.soap.partner.sobject.SObject;
 
 import org.hamcrest.Matcher;
+import org.testmy.config.Config;
 import org.testmy.data.matchers.ConstructingMatcher;
 
-public class TestDataManager {
+import net.thucydides.core.annotations.Shared;
+
+public class TestDataManager implements Config {
+    @Shared
+    private RecordTypeIdProvider recordTypeIdProvider;
     private List<SObject> sObjects = new LinkedList<>();
 
     public List<SObject> getData() {
@@ -38,7 +43,21 @@ public class TestDataManager {
     public SObject constructSObject(final ConstructingMatcher sObjectShape) {
         final SObject result = new SObject("Type must be initialized 1st, but can be changed later");
         sObjectShape.visitForUpdate(result);
+        replaceWithRecordTypeIdIfPresent(result);
         return result;
+    }
+
+    private void replaceWithRecordTypeIdIfPresent(final SObject sObject) {
+        final Object recordTypeName = sObject.getField(FIELD_RECORDTYPE_DEVELOPERNAME);
+        if (null != recordTypeName) {
+            final Optional<String> recordTypeId = recordTypeIdProvider.getIdFor(sObject.getType(),
+                    recordTypeName.toString());
+            recordTypeId.map(id -> {
+                sObject.setField(FIELD_RECORDTYPEID, id);
+                sObject.removeField(FIELD_RECORDTYPE_DEVELOPERNAME);
+                return id;
+            }).orElseThrow(() -> new IllegalStateException());
+        }
     }
 
     public Optional<SObject> findObject(Matcher<SObject> sObjectShape) {

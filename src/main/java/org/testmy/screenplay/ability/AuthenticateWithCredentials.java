@@ -4,19 +4,20 @@ import org.apache.http.auth.Credentials;
 import org.testmy.persona.Persona;
 import org.testmy.persona.PersonaManager;
 import org.testmy.persona.auth.CredentialsProvider;
+import org.testmy.persona.auth.LightCredentialsProvider;
 
 import lombok.Getter;
-import net.serenitybdd.screenplay.Ability;
+import lombok.Setter;
 import net.serenitybdd.screenplay.Actor;
 import net.thucydides.core.annotations.Shared;
 
 public class AuthenticateWithCredentials implements SalesforceAbility {
+    @Setter
     private Actor actor;
     private String persona;
     @Shared
     PersonaManager personaManager;
-    @Shared
-    CredentialsProvider credentialsProvider;
+    CredentialsProvider credentialsProvider = new LightCredentialsProvider();
     @Getter
     private String username;
     @Getter
@@ -33,12 +34,5 @@ public class AuthenticateWithCredentials implements SalesforceAbility {
             username = credentials.getUserPrincipal().getName();
             password = credentials.getPassword();
         }
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Ability> T asActor(Actor actor) {
-        this.actor = actor;
-        return (T) this;
     }
 }

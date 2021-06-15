@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.testmy.error.AbilityIsAbsentException;
 
-import net.serenitybdd.screenplay.Ability;
 import net.serenitybdd.screenplay.Actor;
 
 public class SafeAbilityTest {
@@ -46,9 +45,7 @@ public class SafeAbilityTest {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public <T extends Ability> T asActor(Actor actor) {
-            return (T) this;
+        public void setActor(Actor actor) {
         }
     }
 }

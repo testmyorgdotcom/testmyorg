@@ -25,6 +25,10 @@ public class ObjectMatchers implements Config {
         return new HasField(MANDATORY_TYPE_COMPONENT, OBJECT_LEAD);
     }
 
+    public static HasField opportunity() {
+        return new HasField(MANDATORY_TYPE_COMPONENT, OBJECT_OPPORTUNITY);
+    }
+
     public static HasField task() {
         return new HasField(MANDATORY_TYPE_COMPONENT, OBJECT_TASK);
     }

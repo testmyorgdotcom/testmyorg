@@ -29,7 +29,7 @@ public class HasField extends TypeSafeMatcher<SObject> implements ConstructingMa
     };
 
     public HasField(final String fieldName,
-            final String fieldValue) {
+            final Object fieldValue) {
         this(fieldName, is(equalTo(fieldValue)));
         constructLogic = sObj -> sObj.setField(fieldName, fieldValue);
         soqlComponent = () -> new SoqlComponent(fieldName, fieldValue);
