@@ -9,6 +9,8 @@ import com.sforce.ws.ConnectorConfig;
 import org.testmy.error.TestRuntimeException;
 import org.testmy.screenplay.ability.CallPartnerSoapApi;
 
+import net.serenitybdd.core.steps.Instrumented;
+
 public class Call {
     public static CallPartnerSoapApi partnerApi() {
         return partnerApi((config) -> {
@@ -21,6 +23,6 @@ public class Call {
     }
 
     public static CallPartnerSoapApi partnerApi(final Function<ConnectorConfig, PartnerConnection> connectionFactory) {
-        return new CallPartnerSoapApi(connectionFactory);
+        return Instrumented.instanceOf(CallPartnerSoapApi.class).withProperties(connectionFactory);
     }
 }

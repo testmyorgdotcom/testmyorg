@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -14,6 +15,7 @@ import static org.testmy.data.matchers.Matchers.hasId;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
+import static org.testmy.data.matchers.ObjectMatchers.opportunity;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -28,10 +30,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.testmy.config.Config;
 import org.testmy.data.matchers.ConstructingMatcher;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
+    @Mock
+    private RecordTypeIdProvider recordTypeIdProvider;
     @Mock
     private SalesforceDataAction salesforceAction;
     @InjectMocks
@@ -119,6 +124,29 @@ public class TestDataManagerTest {
     public void cacheExistingShape_failIfIdIsMissing() {
         final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
         dataManagerUnderTest.cacheExistingShape(ofShape);
+    }
+
+    @Test
+    public void constructSObject_replaceRecordTypeNameWithRecordTypeId() {
+        final String recordTypeId = "0x123...";
+        final String recordTypeName = "Sales Opportunity";
+        final ConstructingMatcher ofShape = ofShape(
+                hasField("type", Config.OBJECT_OPPORTUNITY),
+                hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, recordTypeName));
+        when(recordTypeIdProvider.getIdFor(Config.OBJECT_OPPORTUNITY, recordTypeName))
+                .thenReturn(Optional.of(recordTypeId));
+        final SObject sObject = dataManagerUnderTest.constructSObject(ofShape);
+        assertThat(sObject.getField(Config.FIELD_RECORDTYPEID), is(recordTypeId));
+        assertThat(sObject.getField(Config.FIELD_RECORDTYPE_DEVELOPERNAME), is(nullValue()));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void constructSObject_failIfRecordTypeIdIsWasNotFound() {
+        final ConstructingMatcher ofShape = ofShape(
+                opportunity(),
+                hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, "Sales Opportunity"));
+        when(recordTypeIdProvider.getIdFor(any(), any())).thenReturn(Optional.empty());
+        dataManagerUnderTest.constructSObject(ofShape);
     }
 
     @Test(expected = IllegalArgumentException.class)

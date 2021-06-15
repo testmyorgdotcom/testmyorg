@@ -25,6 +25,9 @@ public class CreateRecord implements Task {
     private String globalAction;
     private HasFields objectShapeToCreate;
 
+    public CreateRecord() {
+    }
+
     public CreateRecord(final String globalAction) {
         this.globalAction = globalAction;
     }
