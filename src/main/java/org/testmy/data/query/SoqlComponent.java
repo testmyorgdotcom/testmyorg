@@ -2,6 +2,7 @@ package org.testmy.data.query;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 
 import org.testmy.config.Config;
@@ -28,8 +29,9 @@ public class SoqlComponent {
         if (!MANDATORY_TYPE_COMPONENT.equals(fieldName)) {
             whereSupplier = () -> fieldName + " = '" + fieldValue + "'";
             if (fieldValue instanceof Date) {
-                whereSupplier = () -> fieldName + " = "
-                        + new SimpleDateFormat(Config.FORMAT_DATE_FIELD).format(fieldValue);
+                final SimpleDateFormat sdf = new SimpleDateFormat(Config.FORMAT_DATE_FIELD);
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                whereSupplier = () -> fieldName + " = " + sdf.format(fieldValue);
             }
             selectSupplier = () -> fieldName;
         }
