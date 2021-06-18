@@ -141,17 +141,11 @@ public class TestDataManagerTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void constructSObject_failIfRecordTypeIdIsWasNotFound() {
+    public void constructSObject_failIfRecordTypeIdWasNotFound() {
         final ConstructingMatcher ofShape = ofShape(
                 opportunity(),
                 hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, "Sales Opportunity"));
         when(recordTypeIdProvider.getIdFor(any(), any())).thenReturn(Optional.empty());
-        dataManagerUnderTest.constructSObject(ofShape);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void constructSObject_faileIfTypeIsMissing() {
-        final ConstructingMatcher ofShape = ofShape(hasId("003xyz..."), hasName("Test Client"));
         dataManagerUnderTest.constructSObject(ofShape);
     }
 }
