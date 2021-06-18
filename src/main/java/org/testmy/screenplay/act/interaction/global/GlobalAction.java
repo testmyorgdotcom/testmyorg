@@ -1,10 +1,24 @@
-package org.testmy.screenplay.ui;
+package org.testmy.screenplay.act.interaction.global;
 
+import lombok.AllArgsConstructor;
+import net.serenitybdd.screenplay.Actor;
+import net.serenitybdd.screenplay.Interaction;
+import net.serenitybdd.screenplay.actions.Click;
 import net.serenitybdd.screenplay.targets.Target;
 
-public class GlobalActions {
-    public static Target createButton() {
-        return Target.the("Global Actions: Create Button")
+@AllArgsConstructor
+public class GlobalAction implements Interaction {
+    private String actioName;
+
+    @Override
+    public <T extends Actor> void performAs(T actor) {
+        actor.attemptsTo(
+                Click.on(plusIcon()),
+                Click.on(globalActionItemFor(actioName)));
+    }
+
+    public static Target plusIcon() {
+        return Target.the("Global Actions: '+' icon")
                 .locatedBy("//header//ul/li//a[contains(@class, 'globalCreateTrigger')]");
     }
 
@@ -13,7 +27,7 @@ public class GlobalActions {
                 .locatedBy("//header//div[@class='globalCreateMenuList']");
     }
 
-    public static Target createMenuListItem(final String globalActionName) {
+    public static Target globalActionItemFor(final String globalActionName) {
         return Target.the("Global Actions: Menu Item")
                 .locatedBy("//header//div[@class='globalCreateMenuList']//ul/li/a[@title='" + globalActionName + "']");
     }

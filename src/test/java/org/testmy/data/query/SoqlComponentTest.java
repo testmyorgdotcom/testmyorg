@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.testmy.data.query.SoqlComponent.soqlComponent;
 
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
