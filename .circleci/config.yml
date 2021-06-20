@@ -1,8 +1,7 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: cimg/openjdk:8.0
-    steps:
-      - checkout
-      - run: mvn clean test
+orbs:
+  maven: circleci/maven@1.2.0
+version: 2.1
+workflows:
+  maven_test:
+    jobs:
+      - maven/test
