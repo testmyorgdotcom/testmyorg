@@ -1,0 +1,11 @@
+orbs:
+  maven: circleci/maven@1.2.0
+version: 2.1
+workflows:
+  maven_test:
+    jobs:
+      - maven/test:
+            filters:
+              branches:
+                only:
+                  - main
