@@ -5,5 +5,4 @@ jobs:
       - image: cimg/openjdk:8.0
     steps:
       - checkout
-      - run: java --version
       - run: mvn clean test
