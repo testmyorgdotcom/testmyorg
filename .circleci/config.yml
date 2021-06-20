@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:8
+    steps:
+      - checkout
+      - run: java --version
+      - run: mvn clean test
