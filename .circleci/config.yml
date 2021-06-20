@@ -4,4 +4,8 @@ version: 2.1
 workflows:
   maven_test:
     jobs:
-      - maven/test
+      - maven/test:
+            filters:
+              branches:
+                only:
+                  - main
