@@ -6,5 +6,5 @@ jobs:
       - image: cimg/openjdk:8.0
     steps:
       - checkout
-      - run: echo ${env.GPG_KEY}
+      - run: echo ${GPG_KEY}
       - run: mvn clean deploy -T 1C -P sonatype
