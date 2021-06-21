@@ -1,18 +1,9 @@
 version: 2.1
 
-orbs:
-  maven: circleci/maven@1.2.0
-
-paramters:
-  settings_file: .circleci/settings.xml
-
-
-workflows:
-  maven_test:
-    jobs:
-      - maven/parallel_test:
-            parallelism: 4
-            # filters:
-            #   branches:
-            #     only:
-            #       - main
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:8.0
+    steps:
+      - checkout
+      - run: mvn clean deploy -T 1C -P sonatype
