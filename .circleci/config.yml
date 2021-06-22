@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  circleci-maven-release-orb: sonatype-nexus-community/circleci-maven-release-orb@0.0.16  
+
 jobs:
   build:
     docker:
@@ -7,6 +10,6 @@ jobs:
     steps:
       - run: 
           name: import GPG key
-          command: echo -e "$GPG_KEY" | gpg --import        
+          command: echo -e "$GPG_KEY" | gpg2 --import        
       # - checkout
       # - run: mvn clean deploy -T 1C -P sonatype
