@@ -4,6 +4,7 @@ public interface Config {
     // System properties
     String PROPERTY_URL_LOGIN = "testmyorg.sf.login.url";
     String PROPERTY_VERSION_API_SOAP_PARTNER = "testmyorg.sf.api.partner.version";
+    String PROPERTY_URL_PROXY = "testmyorg.proxy.url";
     // System default properties
     String PROPERTY_DEFAULT_URL_LOGIN = "https://test.salesforce.com";
     String PROPERTY_DEFAULT_VERSION_API_SOAP_PARTNER = "51";

@@ -44,4 +44,13 @@ public class URLHelper {
             throw new TestRuntimeException(e);
         }
     }
+
+    public static Integer extractPort(String urlUnderTest) {
+        try {
+            final URL url = new URL(urlUnderTest);
+            return url.getPort();
+        } catch (final MalformedURLException e) {
+            throw new TestRuntimeException(e);
+        }
+    }
 }
