@@ -7,10 +7,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.testmy.data.RecordTypeIdProvider.RecordType;
+import org.testmy.error.TestRuntimeException;
 
 public class RecordTypeIdProviderTest {
     RecordTypeIdProvider rtIdProvider = new RecordTypeIdProvider();
@@ -21,21 +21,21 @@ public class RecordTypeIdProviderTest {
         final String recordTypeId = "ABC";
         final String objectType = "Account";
         initRecordType(objectType, recordTypeName, recordTypeId);
-        assertThat(rtIdProvider.getIdFor(objectType, recordTypeName), is(Optional.of(recordTypeId)));
+        assertThat(rtIdProvider.getIdFor(objectType, recordTypeName), is(recordTypeId));
     }
 
-    @Test
-    public void getIdFor_OptionalEmptyIfNoRecordTypeWithName() {
+    @Test(expected = TestRuntimeException.class)
+    public void getIdFor_ExceptionIfNoRecordTypeWithName() {
         final String recordTypeName = "Sales Opportunity";
         final String recordTypeId = "ABC";
         final String objectType = "Account";
         initRecordType(objectType, recordTypeName, recordTypeId);
-        assertThat(rtIdProvider.getIdFor(objectType, "Non Existing Record Type"), is(Optional.empty()));
+        rtIdProvider.getIdFor(objectType, "Non Existing Record Type");
     }
 
-    @Test
+    @Test(expected = TestRuntimeException.class)
     public void getIdFor_OptionalEmptyIfNoDataForObjectType() {
-        assertThat(rtIdProvider.getIdFor("Object Type with no data", "Any Record Type"), is(Optional.empty()));
+        rtIdProvider.getIdFor("Object Type with no data", "Any Record Type");
     }
 
     private void initRecordType(final String objectType,

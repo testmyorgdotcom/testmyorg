@@ -15,7 +15,6 @@ import static org.testmy.data.matchers.Matchers.hasId;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
-import static org.testmy.data.matchers.ObjectMatchers.opportunity;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -133,20 +132,10 @@ public class TestDataManagerTest {
         final ConstructingMatcher ofShape = ofShape(
                 hasField("type", Config.OBJECT_OPPORTUNITY),
                 hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, recordTypeName));
-        when(recordTypeIdProvider.getIdFor(Config.OBJECT_OPPORTUNITY, recordTypeName))
-                .thenReturn(Optional.of(recordTypeId));
+        when(recordTypeIdProvider.getIdFor(Config.OBJECT_OPPORTUNITY, recordTypeName)).thenReturn(recordTypeId);
         final SObject sObject = dataManagerUnderTest.constructSObject(ofShape);
         assertThat(sObject.getField(Config.FIELD_RECORDTYPEID), is(recordTypeId));
         assertThat(sObject.getField(Config.FIELD_RECORDTYPE_DEVELOPERNAME), is(nullValue()));
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void constructSObject_failIfRecordTypeIdIsWasNotFound() {
-        final ConstructingMatcher ofShape = ofShape(
-                opportunity(),
-                hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, "Sales Opportunity"));
-        when(recordTypeIdProvider.getIdFor(any(), any())).thenReturn(Optional.empty());
-        dataManagerUnderTest.constructSObject(ofShape);
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -42,13 +42,14 @@ public class CallPartnerSoapApi implements SalesforceAbility, Config {
         config.setPassword(credentials.getPassword());
         config.setAuthEndpoint(constructEndPoint());
         final String proxyUrl = System.getProperty(Config.PROPERTY_URL_PROXY);
-        if(!StringUtils.isEmpty(proxyUrl)){
+        if (!StringUtils.isEmpty(proxyUrl)) {
             setProxy(config, proxyUrl);
         }
         return config;
     }
 
-    private void setProxy(final ConnectorConfig config, final String proxyUrl) {
+    private void setProxy(final ConnectorConfig config,
+            final String proxyUrl) {
         final String host = URLHelper.extractDomain(proxyUrl);
         final Integer port = URLHelper.extractPort(proxyUrl);
         config.setProxy(host, port);

@@ -41,9 +41,7 @@ public class InitializeFrameworkTest {
         when(callPartnerApiAbility.ensureConnection()).thenReturn(partnerConnection);
         when(partnerConnection.queryAll(anyString())).thenReturn(queryResult);
         when(queryResult.getRecords()).thenReturn(new SObject[0]);
-
         initializeFramework.loadRecordTypes();
-        
         verify(callPartnerApiAbility).ensureConnection();
         verify(partnerConnection).queryAll(anyString());
         verify(queryResult).getRecords();
