@@ -1,7 +1,7 @@
 version: 2.1
 
 workflows:
-  build:
+  deploy snapshot:
     jobs:
       - build:
           context:
@@ -10,12 +10,11 @@ workflows:
 jobs:
   build:
     docker:
-      - image: cimg/base:2021.04
+      - image: cimg/openjdk:8.0
     steps:
       - run: 
           name: import GPG key
-          command: echo -e "$GPG_KEY" | base64 -d | gpg --import --no-tty --batch --yes 
-      # - checkout
-      # - run: mvn clean deploy -T 1C -P sonatype
-
-    
+          command: echo -e "$GPG_KEY" | base64 -d | gpg --import --no-tty --batch --yes
+      - run: 
+          name: deploy to snapshot repository
+          command: mvn clean deploy -T 1C -P sonatype
