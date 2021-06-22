@@ -5,5 +5,8 @@ jobs:
     docker:
       - image: cimg/openjdk:8.0
     steps:
-      - checkout
-      - run: mvn clean deploy -T 1C -P sonatype
+      - run: 
+          name: import GPG key
+          command: echo -e "$GPG_KEY" | gpg --import        
+      # - checkout
+      # - run: mvn clean deploy -T 1C -P sonatype
