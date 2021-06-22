@@ -11,7 +11,7 @@
     <profile>
       <id>sonatype</id>
       <properties>
-        <gpg.executable>gpg2</gpg.executable>
+        <gpg.executable>gpg</gpg.executable>
         <gpg.passphrase>${env.GPG_PASSPTHRASE}</gpg.passphrase>
       </properties>
     </profile>
