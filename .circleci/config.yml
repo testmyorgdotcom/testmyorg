@@ -16,5 +16,10 @@ jobs:
           name: import GPG key
           command: echo -e "$GPG_KEY" | base64 -d | gpg --import --no-tty --batch --yes
       - run: 
+          name: list files
+          command: |
+            ls -la
+            ls -la ~/.circleci
+      - run: 
           name: deploy to snapshot repository
           command: mvn clean deploy -T 1C -P sonatype  --settings ./.circleci/settings.xml
