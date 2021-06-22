@@ -14,7 +14,7 @@ jobs:
     steps:
       - run: 
           name: import GPG key
-          command: echo -e "$GPG_KEY" | base64 -d | gpg --import
+          command: echo -e "$GPG_KEY" | base64 -d | gpg --import --no-tty --batch --yes 
       # - checkout
       # - run: mvn clean deploy -T 1C -P sonatype
 
