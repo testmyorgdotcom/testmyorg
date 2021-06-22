@@ -16,6 +16,9 @@ jobs:
           name: import GPG key
           command: echo -e "$GPG_KEY" | base64 -d | gpg --import --no-tty --batch --yes
       - checkout
+      - run:
+          name: build project
+          command: mvn clean install -T 1C dependency:resolve-plugins dependency:go-offline
       - run: 
           name: deploy to snapshot repository
-          command: mvn clean deploy -T 1C -P sonatype  --settings ./.circleci/settings.xml
+          command: mvn -DskipTests deploy  -P sonatype  --settings ./.circleci/settings.xml
