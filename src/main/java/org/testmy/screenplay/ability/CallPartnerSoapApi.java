@@ -6,6 +6,8 @@ import java.util.function.Function;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectorConfig;
 
+import org.apache.commons.lang3.StringUtils;
+import org.testmy.URLHelper;
 import org.testmy.config.Config;
 
 import lombok.Getter;
@@ -32,14 +34,24 @@ public class CallPartnerSoapApi implements SalesforceAbility, Config {
         return connection.get();
     }
 
-    private ConnectorConfig setupConfig() {
+    ConnectorConfig setupConfig() {
         final AuthenticateWithCredentials credentials = abilityProvider.as(actor, AuthenticateWithCredentials.class);
         credentials.resolveCredentials();
         final ConnectorConfig config = new ConnectorConfig();
         config.setUsername(credentials.getUsername());
         config.setPassword(credentials.getPassword());
         config.setAuthEndpoint(constructEndPoint());
+        final String proxyUrl = System.getProperty(Config.PROPERTY_URL_PROXY);
+        if(!StringUtils.isEmpty(proxyUrl)){
+            setProxy(config, proxyUrl);
+        }
         return config;
+    }
+
+    private void setProxy(final ConnectorConfig config, final String proxyUrl) {
+        final String host = URLHelper.extractDomain(proxyUrl);
+        final Integer port = URLHelper.extractPort(proxyUrl);
+        config.setProxy(host, port);
     }
 
     private String constructEndPoint() {

@@ -27,4 +27,9 @@ public class URLHelperTest {
     public void testParseObjectId() {
         assertThat(URLHelper.parseObjectId(urlUnderTest), equalTo("1234567890"));
     }
+
+    @Test
+    public void testExtractPort(){
+        assertThat(URLHelper.extractPort("http://heloworld:8888"), equalTo(8888));
+    }
 }
