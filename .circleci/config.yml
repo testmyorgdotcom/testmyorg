@@ -10,7 +10,7 @@ workflows:
 jobs:
   build:
     docker:
-      - image: cimg/alpine
+      - image: cimg/base:2021.04
     steps:
       - run: 
           name: import GPG key
