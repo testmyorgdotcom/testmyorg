@@ -17,4 +17,4 @@ jobs:
           command: echo -e "$GPG_KEY" | base64 -d | gpg --import --no-tty --batch --yes
       - run: 
           name: deploy to snapshot repository
-          command: mvn clean deploy -T 1C -P sonatype  --settings .circleci/settings.xml
+          command: mvn clean deploy -T 1C -P sonatype  --settings ./.circleci/settings.xml
