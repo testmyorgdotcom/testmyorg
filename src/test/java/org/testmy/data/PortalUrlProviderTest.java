@@ -24,7 +24,7 @@ public class PortalUrlProviderTest {
         initPortaldata(portalName, domain, urlPathPrefix);
 
         final String resolvedPortalUrl = portalUrlProver.getPortalFor(portalName);
-        
+
         assertThat(resolvedPortalUrl, is(domain + urlPathPrefix));
     }
 

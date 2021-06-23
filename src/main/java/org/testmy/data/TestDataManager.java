@@ -19,6 +19,7 @@ import net.thucydides.core.annotations.Shared;
 public class TestDataManager implements Config {
     @Shared
     private RecordTypeIdProvider recordTypeIdProvider;
+    private MatcherToSOjbectConstructor sObjectConstructor = new MatcherToSOjbectConstructor();
     private List<SObject> sObjects = new LinkedList<>();
 
     public List<SObject> getData() {
@@ -40,9 +41,8 @@ public class TestDataManager implements Config {
         });
     }
 
-    public SObject constructSObject(final ConstructingMatcher sObjectShape) {
-        final SObject result = new SObject("Type must be initialized 1st, but can be changed later");
-        sObjectShape.visitForUpdate(result);
+    SObject constructSObject(final ConstructingMatcher sObjectShape) {
+        final SObject result = sObjectConstructor.constructSObject(sObjectShape);
         replaceWithRecordTypeIdIfPresent(result);
         return result;
     }

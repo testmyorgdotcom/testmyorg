@@ -9,7 +9,6 @@ import org.testmy.screenplay.ui.AppLauncher;
 import org.testmy.screenplay.ui.WebPage;
 
 import lombok.AllArgsConstructor;
-import net.serenitybdd.core.steps.Instrumented;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Interaction;
 import net.serenitybdd.screenplay.actions.Click;
@@ -20,10 +19,6 @@ import net.serenitybdd.screenplay.waits.WaitUntil;
 @AllArgsConstructor
 public class NavigateToApp implements Interaction {
     private String appName;
-
-    public static NavigateToApp called(final String appName) {
-        return Instrumented.instanceOf(NavigateToApp.class).withProperties(appName);
-    }
 
     @Override
     public <T extends Actor> void performAs(T actor) {

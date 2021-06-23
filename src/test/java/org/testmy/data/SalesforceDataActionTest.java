@@ -48,7 +48,7 @@ public class SalesforceDataActionTest {
         mockPartnerConnectionInsertIdResult(sfId);
 
         final String storedRecordSfId = action.insert(new SObject());
-        
+
         assertThat(storedRecordSfId, is(sfId));
         verify(partnerConnection).create(any());
     }

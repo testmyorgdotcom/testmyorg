@@ -16,9 +16,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.testmy.data.MatcherToSOjbectConstructor;
 import org.testmy.data.PortalUrlProvider;
 import org.testmy.data.RecordTypeIdProvider;
-import org.testmy.data.TestDataManager;
 import org.testmy.data.matchers.HasFields;
 
 import net.serenitybdd.screenplay.Actor;
@@ -31,19 +31,18 @@ public class InitializeFrameworkTest {
     PortalUrlProvider portalUrlProvider = new PortalUrlProvider();
     @InjectMocks
     InitializeFramework initializeFramework;
-    TestDataManager testDataManager = new TestDataManager();
+    MatcherToSOjbectConstructor sObjectConstructor = new MatcherToSOjbectConstructor();
 
     @Test
     public void loadRecordTypes_initializesRecordTypeProvider() throws ConnectionException {
         initializeFramework.setRecordTypeIdProvider(recordTypeIdProvider);
         final HasFields recordTypeShape = ofShape(
-            hasField("type", "RecordType"),
-            hasField("SobjectType", "Account"),
-            hasField("DeveloperName", "Customer"),
-            hasField("Id", "0x123...")
-        );
+                hasField("type", "RecordType"),
+                hasField("SobjectType", "Account"),
+                hasField("DeveloperName", "Customer"),
+                hasField("Id", "0x123..."));
         when(mike.asksFor(any()))
-            .thenReturn(Collections.singletonList(testDataManager.constructSObject(recordTypeShape)));
+                .thenReturn(Collections.singletonList(sObjectConstructor.constructSObject(recordTypeShape)));
 
         initializeFramework.loadRecordTypes();
 
@@ -51,19 +50,18 @@ public class InitializeFrameworkTest {
     }
 
     @Test
-    public void loadPortalInfo_initializesPortalUrlProvider(){
+    public void loadPortalInfo_initializesPortalUrlProvider() {
         final String portalName = "My Portal";
         final String domain = "abc.com";
         final String urlPrefx = "/xyz";
         initializeFramework.setPortalUrlProvider(portalUrlProvider);
         final HasFields domainInfoShape = ofShape(
-            hasField("type", "Domain"),
-            hasField(PortalUrlProvider.MASTER_LABEL_FIELD_NAME, portalName),
-            hasField(PortalUrlProvider.DOMAIN_FIELD_NAME, domain),
-            hasField(PortalUrlProvider.URL_PREFIX_FIELD_NAME, urlPrefx)
-        );
+                hasField("type", "Domain"),
+                hasField(PortalUrlProvider.MASTER_LABEL_FIELD_NAME, portalName),
+                hasField(PortalUrlProvider.DOMAIN_FIELD_NAME, domain),
+                hasField(PortalUrlProvider.URL_PREFIX_FIELD_NAME, urlPrefx));
         when(mike.asksFor(any()))
-            .thenReturn(Collections.singletonList(testDataManager.constructSObject(domainInfoShape)));
+                .thenReturn(Collections.singletonList(sObjectConstructor.constructSObject(domainInfoShape)));
 
         initializeFramework.loadPortalInfo();
 

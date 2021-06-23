@@ -24,10 +24,12 @@ public class InitializeFramework implements SalesforceAbility {
     AbilityProvider abilityProvider = AbilityProvider.getInstance();
     @Setter
     private Actor actor;
-    @Getter@Setter
+    @Getter
+    @Setter
     @Shared
     private RecordTypeIdProvider recordTypeIdProvider;
-    @Getter@Setter
+    @Getter
+    @Setter
     @Shared
     private PortalUrlProvider portalUrlProvider;
 
@@ -35,11 +37,11 @@ public class InitializeFramework implements SalesforceAbility {
         return Instrumented.instanceOf(InitializeFramework.class).newInstance();
     }
 
-    public void initialize(){
+    public void initialize() {
         loadRecordTypes();
         loadPortalInfo();
     }
-    
+
     public void loadRecordTypes() {
         final String allRecordTypesQuery = "SELECT Id, DeveloperName, SobjectType FROM RecordType";
         final List<SObject> recordTypes = actor.asksFor(SObjectsQuestion.withQuery(allRecordTypesQuery));
