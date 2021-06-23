@@ -17,6 +17,6 @@ public class Initialize implements Performable {
     @Override
     public <T extends Actor> void performAs(T actor) {
         final InitializeFramework initializeFrameworkAbility = abilityProvider.as(actor, InitializeFramework.class);
-        initializeFrameworkAbility.loadRecordTypes();
+        initializeFrameworkAbility.initialize();
     }
 }

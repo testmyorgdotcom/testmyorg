@@ -83,7 +83,6 @@ public class CallPartnerSoapApiTest {
         final Proxy proxy = configWithProxy.getProxy();
         assertThat(proxy, is(notNullValue()));
         assertThat(proxy.type(), is(Proxy.Type.HTTP));
-        System.out.println(proxy);
     }
 
     @Test

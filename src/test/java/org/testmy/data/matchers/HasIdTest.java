@@ -1,6 +1,6 @@
 package org.testmy.data.matchers;
 
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.testmy.data.matchers.Matchers.hasId;
 
 import com.sforce.soap.partner.sobject.SObject;
