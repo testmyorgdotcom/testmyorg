@@ -50,13 +50,9 @@ public class TestDataManager implements Config {
     private void replaceWithRecordTypeIdIfPresent(final SObject sObject) {
         final Object recordTypeName = sObject.getField(FIELD_RECORDTYPE_DEVELOPERNAME);
         if (null != recordTypeName) {
-            final Optional<String> recordTypeId = recordTypeIdProvider.getIdFor(sObject.getType(),
-                    recordTypeName.toString());
-            recordTypeId.map(id -> {
-                sObject.setField(FIELD_RECORDTYPEID, id);
-                sObject.removeField(FIELD_RECORDTYPE_DEVELOPERNAME);
-                return id;
-            }).orElseThrow(() -> new IllegalStateException());
+            final String recordTypeId = recordTypeIdProvider.getIdFor(sObject.getType(), recordTypeName.toString());
+            sObject.setField(FIELD_RECORDTYPEID, recordTypeId);
+            sObject.removeField(FIELD_RECORDTYPE_DEVELOPERNAME);
         }
     }
 

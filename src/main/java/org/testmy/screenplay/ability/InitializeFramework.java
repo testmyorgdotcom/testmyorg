@@ -9,10 +9,12 @@ import java.util.Map;
 
 import com.sforce.soap.partner.sobject.SObject;
 
+import org.testmy.data.PortalUrlProvider;
 import org.testmy.data.RecordTypeIdProvider;
 import org.testmy.data.RecordTypeIdProvider.RecordType;
-import org.testmy.data.SalesforceDataAction;
+import org.testmy.screenplay.question.data.SObjectsQuestion;
 
+import lombok.Getter;
 import lombok.Setter;
 import net.serenitybdd.core.steps.Instrumented;
 import net.serenitybdd.screenplay.Actor;
@@ -22,26 +24,31 @@ public class InitializeFramework implements SalesforceAbility {
     AbilityProvider abilityProvider = AbilityProvider.getInstance();
     @Setter
     private Actor actor;
+    @Getter
+    @Setter
     @Shared
     private RecordTypeIdProvider recordTypeIdProvider;
+    @Getter
+    @Setter
+    @Shared
+    private PortalUrlProvider portalUrlProvider;
 
     public static InitializeFramework withMetadata() {
         return Instrumented.instanceOf(InitializeFramework.class).newInstance();
     }
 
+    public void initialize() {
+        loadRecordTypes();
+        loadPortalInfo();
+    }
+
     public void loadRecordTypes() {
-        final CallPartnerSoapApi partnerAbility = abilityProvider.as(actor, CallPartnerSoapApi.class);
-        final SalesforceDataAction queryRecordTypes = new SalesforceDataAction(partnerAbility.ensureConnection());
-        loadRecordTypes(queryRecordTypes);
-    }
-
-    void loadRecordTypes(final SalesforceDataAction queryAction) {
         final String allRecordTypesQuery = "SELECT Id, DeveloperName, SobjectType FROM RecordType";
-        final List<SObject> recordTypes = queryAction.queryRecords(allRecordTypesQuery);
-        recordTypeIdProvider.init(groupByObjectType(recordTypes));
+        final List<SObject> recordTypes = actor.asksFor(SObjectsQuestion.withQuery(allRecordTypesQuery));
+        recordTypeIdProvider.init(groupRecordTypesByObjectType(recordTypes));
     }
 
-    private Map<String, List<RecordType>> groupByObjectType(final List<SObject> recordTypes) {
+    private Map<String, List<RecordType>> groupRecordTypesByObjectType(final List<SObject> recordTypes) {
         final Map<String, List<RecordType>> recordTypesByObjectType = recordTypes.stream()
                 .collect(groupingBy(sObject -> sObject.getField("SobjectType").toString(), mapping(
                         sObject -> {
@@ -50,5 +57,15 @@ public class InitializeFramework implements SalesforceAbility {
                             return recordType;
                         }, toList())));
         return recordTypesByObjectType;
+    }
+
+    public void loadPortalInfo() {
+        final String communityPortalQuery = "SELECT Site.URLpathPrefix, Site.MasterLabel, Domain.Domain"
+                + " FROM DomainSite"
+                + " WHERE Domain.HttpsOption = 'Community'"
+                + " AND Site.Status = 'Active'";
+        final List<SObject> portalInfos = actor.asksFor(SObjectsQuestion.withQuery(communityPortalQuery));
+        portalUrlProvider.init(portalInfos);
+
     }
 }

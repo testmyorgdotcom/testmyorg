@@ -3,7 +3,8 @@ package org.testmy.data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+
+import org.testmy.error.TestRuntimeException;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,16 +12,19 @@ import lombok.Data;
 public class RecordTypeIdProvider {
     private Map<String, List<RecordType>> recordTypesByObjectType = new HashMap<>();
 
-    public Optional<String> getIdFor(final String objectType,
+    public String getIdFor(final String objectType,
             final String recordTypeName) {
         if (!recordTypesByObjectType.containsKey(objectType)) {
-            return Optional.empty();
+            throw new TestRuntimeException("No record types loaded for object type: " + objectType);
         }
         final List<RecordType> recordTypesForObject = recordTypesByObjectType.get(objectType);
         return recordTypesForObject.stream()
                 .filter(rt -> rt.getName().equals(recordTypeName))
                 .findFirst()
-                .map(rt -> rt.getId());
+                .map(rt -> rt.getId())
+                .orElseThrow(() -> new TestRuntimeException(
+                        "No '" + recordTypeName
+                                + "'' record type found for object type: " + objectType + ", "));
     }
 
     public void init(final Map<String, List<RecordType>> recordTypesByObjectType) {

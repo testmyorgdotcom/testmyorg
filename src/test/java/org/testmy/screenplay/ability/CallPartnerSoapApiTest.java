@@ -74,26 +74,21 @@ public class CallPartnerSoapApiTest {
     }
 
     @Test
-    public void setupConfig_UseProxyIfAvailableAsSystemProperty(){
+    public void setupConfig_UseProxyIfAvailableAsSystemProperty() {
         final String proxyHost = "proxyHost";
         final String proxyPort = "8888";
         final String proxyUrl = String.format("http://%s:%s", proxyHost, proxyPort);
         System.setProperty(Config.PROPERTY_URL_PROXY, proxyUrl);
-
         final ConnectorConfig configWithProxy = callApiAbility.setupConfig();
-
         final Proxy proxy = configWithProxy.getProxy();
         assertThat(proxy, is(notNullValue()));
         assertThat(proxy.type(), is(Proxy.Type.HTTP));
-        System.out.println(proxy);
     }
 
     @Test
-    public void setupConfig_NoProxyIfUnAvailableAsSystemProperty(){
+    public void setupConfig_NoProxyIfUnAvailableAsSystemProperty() {
         System.setProperty(Config.PROPERTY_URL_PROXY, "");
-
         final ConnectorConfig configWithProxy = callApiAbility.setupConfig();
-
         final Proxy proxy = configWithProxy.getProxy();
         assertThat(proxy, is(notNullValue()));
         assertThat(proxy.type(), is(Proxy.Type.DIRECT));

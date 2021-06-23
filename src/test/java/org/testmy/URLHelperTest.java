@@ -29,7 +29,7 @@ public class URLHelperTest {
     }
 
     @Test
-    public void testExtractPort(){
+    public void testExtractPort() {
         assertThat(URLHelper.extractPort("http://heloworld:8888"), equalTo(8888));
     }
 }
