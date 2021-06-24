@@ -4,7 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import org.apache.http.auth.Credentials;
 import org.junit.Test;
 import org.testmy.persona.Persona;
 import org.testmy.persona.PersonaManager;
@@ -19,7 +18,7 @@ public class LightCredentialsProviderTest {
         final PersonaManager personaManager = new PersonaManager("test-personas");
         final Persona testPersona = personaManager.getAllPersonas().get(0);
         final Credentials credentials = new LightCredentialsProvider().getCredentialsFor(testPersona);
-        assertThat(credentials.getUserPrincipal().getName(), is(equalTo(testPersona.getUsername())));
+        assertThat(credentials.getUsername(), is(equalTo(testPersona.getUsername())));
         assertThat(credentials.getPassword(), is(equalTo(testPassword)));
     }
 }

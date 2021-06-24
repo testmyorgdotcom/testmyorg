@@ -3,6 +3,7 @@ package org.testmy.screenplay.act.interaction.login;
 import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isNotVisible;
 
 import org.testmy.config.Config;
+import org.testmy.persona.auth.Credentials;
 import org.testmy.screenplay.ability.AbilityProvider;
 import org.testmy.screenplay.ability.AuthenticateWithCredentials;
 import org.testmy.screenplay.ui.LoginForm;
@@ -20,8 +21,8 @@ public class ViaForm implements Interaction, Config {
 
     @Override
     public <T extends Actor> void performAs(T actor) {
-        final AuthenticateWithCredentials credentials = abilityProvider.as(actor, AuthenticateWithCredentials.class);
-        credentials.resolveCredentials();
+        final AuthenticateWithCredentials credAbility = abilityProvider.as(actor, AuthenticateWithCredentials.class);
+        final Credentials credentials = credAbility.resolveCredentials();
         final String loginUrl = System.getProperty(PROPERTY_URL_LOGIN, PROPERTY_DEFAULT_URL_LOGIN);
         actor.attemptsTo(
                 Open.url(loginUrl),

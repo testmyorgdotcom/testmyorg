@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.config.Config;
+import org.testmy.persona.auth.Credentials;
 
 import net.serenitybdd.screenplay.Actor;
 
@@ -43,6 +44,7 @@ public class CallPartnerSoapApiTest {
     public void before() {
         callApiAbility.abilityProvider = abilityProvider;
         when(abilityProvider.as(actor, AuthenticateWithCredentials.class)).thenReturn(authInfo);
+        when(authInfo.resolveCredentials()).thenReturn(new Credentials("any", "any"));
         when(connectionFactory.apply(any())).thenReturn(mockPartnerConnection);
         callApiAbility.asActor(actor);
     }

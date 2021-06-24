@@ -10,13 +10,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.stream.IntStream;
 
-import org.apache.http.auth.UsernamePasswordCredentials;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.persona.PersonaManager;
+import org.testmy.persona.auth.Credentials;
 import org.testmy.persona.auth.CredentialsProvider;
 
 import net.serenitybdd.screenplay.Actor;
@@ -35,7 +35,7 @@ public class AuthenticateWithCredentialsTest {
     @Before
     public void before() {
         when(credentialsProvider.getCredentialsFor(any()))
-                .thenReturn(new UsernamePasswordCredentials(testUser, testPass));
+                .thenReturn(new Credentials(testUser, testPass));
     }
 
     @Test
@@ -56,10 +56,11 @@ public class AuthenticateWithCredentialsTest {
     @Test
     public void resolveCredentials_storesResolvedUsernameAndPassword() {
         final AuthenticateWithCredentials authInfo = getAuthenticateAbilityWithMocksInjected("Admin");
-        assertThat(authInfo.getUsername(), is(nullValue()));
-        authInfo.resolveCredentials();
-        assertThat(authInfo.getUsername(), is(testUser));
-        assertThat(authInfo.getPassword(), is(testPass));
+        Credentials credentials = authInfo.getCredentials();
+        assertThat(credentials, is(nullValue()));
+        credentials = authInfo.resolveCredentials();
+        assertThat(credentials.getUsername(), is(testUser));
+        assertThat(credentials.getPassword(), is(testPass));
     }
 
     @Test
