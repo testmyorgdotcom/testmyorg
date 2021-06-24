@@ -9,6 +9,7 @@ import com.sforce.ws.ConnectorConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.testmy.URLHelper;
 import org.testmy.config.Config;
+import org.testmy.persona.auth.Credentials;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,8 +36,8 @@ public class CallPartnerSoapApi implements SalesforceAbility, Config {
     }
 
     ConnectorConfig setupConfig() {
-        final AuthenticateWithCredentials credentials = abilityProvider.as(actor, AuthenticateWithCredentials.class);
-        credentials.resolveCredentials();
+        final AuthenticateWithCredentials credAbility = abilityProvider.as(actor, AuthenticateWithCredentials.class);
+        final Credentials credentials = credAbility.resolveCredentials();
         final ConnectorConfig config = new ConnectorConfig();
         config.setUsername(credentials.getUsername());
         config.setPassword(credentials.getPassword());
