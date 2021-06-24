@@ -176,6 +176,7 @@
                   <gpgArguments>
                     <arg>--pinentry-mode</arg>
                     <arg>loopback</arg>
+                    <arg>--passphrase $GPG_PASSPHRASE</arg>
                   </gpgArguments>
                 </configuration>
               </execution>
