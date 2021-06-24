@@ -4,6 +4,10 @@ workflows:
   deploy snapshot:
     jobs:
       - build:
+          filters:
+            branches:
+              only: 
+                - main
           context:
           - Test My Org
 
@@ -18,7 +22,7 @@ jobs:
       - checkout
       - run:
           name: build project
-          command: mvn clean install -T 1C dependency:resolve-plugins dependency:go-offline
+          command: mvn clean package -T 1C dependency:resolve-plugins dependency:go-offline
       - run: 
           name: deploy to snapshot repository
-          command: mvn -DskipTests deploy  -P snapshot  --settings ./.circleci/settings.xml
+          command: mvn -DskipTests deploy  -P sonatype  --settings ./.circleci/settings.xml
