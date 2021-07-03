@@ -2,9 +2,6 @@ package org.testmy.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.testmy.data.PortalUrlProvider.DOMAIN_FIELD_NAME;
-import static org.testmy.data.PortalUrlProvider.MASTER_LABEL_FIELD_NAME;
-import static org.testmy.data.PortalUrlProvider.URL_PREFIX_FIELD_NAME;
 
 import java.util.Arrays;
 
@@ -39,13 +36,17 @@ public class PortalUrlProviderTest {
         portalUrlProver.init(Arrays.asList(portalDomainSite(portalName, domain, urlPathPrefix)));
     }
 
-    private SObject portalDomainSite(final String portalName,
+    public static SObject portalDomainSite(final String portalName,
             final String domain,
             final String urlPathPrefix) {
+        final SObject domainObject = new SObject();
+        domainObject.setField("Domain", domain);
+        final SObject siteObject = new SObject();
+        siteObject.setField("MasterLabel", portalName);
+        siteObject.setField("UrlPathPrefix", urlPathPrefix);
         final SObject result = new SObject();
-        result.setField(MASTER_LABEL_FIELD_NAME, portalName);
-        result.setField(DOMAIN_FIELD_NAME, domain);
-        result.setField(URL_PREFIX_FIELD_NAME, urlPathPrefix);
+        result.setSObjectField("Domain", domainObject);
+        result.setSObjectField("Site", siteObject);
         return result;
     }
 }

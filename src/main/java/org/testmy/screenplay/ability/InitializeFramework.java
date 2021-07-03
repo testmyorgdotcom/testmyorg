@@ -4,15 +4,23 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.sforce.soap.partner.DescribeGlobalResult;
+import com.sforce.soap.partner.DescribeSObjectResult;
 import com.sforce.soap.partner.sobject.SObject;
 
 import org.testmy.data.PortalUrlProvider;
 import org.testmy.data.RecordTypeIdProvider;
 import org.testmy.data.RecordTypeIdProvider.RecordType;
-import org.testmy.screenplay.question.data.SObjectsQuestion;
+import org.testmy.data.ReferenceAttributeTypeProvider;
+import org.testmy.screenplay.factory.question.Org;
+import org.testmy.screenplay.factory.question.SObjects;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -25,13 +33,14 @@ public class InitializeFramework implements SalesforceAbility {
     @Setter
     private Actor actor;
     @Getter
-    @Setter
     @Shared
-    private RecordTypeIdProvider recordTypeIdProvider;
+    RecordTypeIdProvider recordTypeIdProvider;
     @Getter
-    @Setter
     @Shared
-    private PortalUrlProvider portalUrlProvider;
+    PortalUrlProvider portalUrlProvider;
+    @Getter
+    @Shared
+    ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
 
     public static InitializeFramework withMetadata() {
         return Instrumented.instanceOf(InitializeFramework.class).newInstance();
@@ -40,11 +49,12 @@ public class InitializeFramework implements SalesforceAbility {
     public void initialize() {
         loadRecordTypes();
         loadPortalInfo();
+        loadReferenceAttributes();
     }
 
     public void loadRecordTypes() {
         final String allRecordTypesQuery = "SELECT Id, DeveloperName, SobjectType FROM RecordType";
-        final List<SObject> recordTypes = actor.asksFor(SObjectsQuestion.withQuery(allRecordTypesQuery));
+        final List<SObject> recordTypes = actor.asksFor(SObjects.usingQuery(allRecordTypesQuery));
         recordTypeIdProvider.init(groupRecordTypesByObjectType(recordTypes));
     }
 
@@ -64,8 +74,12 @@ public class InitializeFramework implements SalesforceAbility {
                 + " FROM DomainSite"
                 + " WHERE Domain.HttpsOption = 'Community'"
                 + " AND Site.Status = 'Active'";
-        final List<SObject> portalInfos = actor.asksFor(SObjectsQuestion.withQuery(communityPortalQuery));
+        final List<SObject> portalInfos = actor.asksFor(SObjects.usingQuery(communityPortalQuery));
         portalUrlProvider.init(portalInfos);
+    }
 
+    public void loadReferenceAttributes(final Set<String> objectTypes) {
+        final List<DescribeSObjectResult> objectsDescription = actor.asksFor(Org.objectsDescription(objectTypes));
+        referenceAttributeTypeProvider.init(objectsDescription);
     }
 }

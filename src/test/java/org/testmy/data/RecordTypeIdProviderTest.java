@@ -20,7 +20,9 @@ public class RecordTypeIdProviderTest {
         final String recordTypeName = "Sales Opportunity";
         final String recordTypeId = "ABC";
         final String objectType = "Account";
+
         initRecordType(objectType, recordTypeName, recordTypeId);
+
         assertThat(rtIdProvider.getIdFor(objectType, recordTypeName), is(recordTypeId));
     }
 
@@ -29,7 +31,9 @@ public class RecordTypeIdProviderTest {
         final String recordTypeName = "Sales Opportunity";
         final String recordTypeId = "ABC";
         final String objectType = "Account";
+
         initRecordType(objectType, recordTypeName, recordTypeId);
+
         rtIdProvider.getIdFor(objectType, "Non Existing Record Type");
     }
 

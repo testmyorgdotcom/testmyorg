@@ -30,7 +30,7 @@ public class SearchForAccount implements Task {
         this.accountName = accountName;
     }
 
-    public static Task witnName(String accountName) {
+    public static Task withName(String accountName) {
         return Instrumented.instanceOf(SearchForAccount.class).withProperties(accountName);
     }
 

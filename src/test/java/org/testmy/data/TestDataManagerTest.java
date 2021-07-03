@@ -4,6 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,6 +16,7 @@ import static org.testmy.data.matchers.Matchers.hasId;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
+import static org.testmy.data.matchers.ObjectMatchers.contact;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +38,8 @@ import org.testmy.data.matchers.ConstructingMatcher;
 public class TestDataManagerTest {
     @Mock
     private RecordTypeIdProvider recordTypeIdProvider;
+    @Mock
+    private ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
     @Mock
     private SalesforceDataAction salesforceAction;
     @InjectMocks
@@ -133,9 +137,34 @@ public class TestDataManagerTest {
                 hasField("type", Config.OBJECT_OPPORTUNITY),
                 hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, recordTypeName));
         when(recordTypeIdProvider.getIdFor(Config.OBJECT_OPPORTUNITY, recordTypeName)).thenReturn(recordTypeId);
+
         final SObject sObject = dataManagerUnderTest.constructSObject(ofShape);
+
         assertThat(sObject.getField(Config.FIELD_RECORDTYPEID), is(recordTypeId));
         assertThat(sObject.getField(Config.FIELD_RECORDTYPE_DEVELOPERNAME), is(nullValue()));
+    }
+
+    @Test
+    public void constructSObject_replaceComplexFieldsWithReference() {
+        final String externalId = "123";
+        final String referenceAttribute = "CustomReference__r";
+        final String referenceObjectExternalIdField = "ExternalId";
+        final String originalField = referenceAttribute + "." + referenceObjectExternalIdField;
+        final String referenceObjectType = "Account";
+        final ConstructingMatcher ofShape = ofShape(
+                contact(),
+                hasField(originalField, externalId));
+        when(referenceAttributeTypeProvider.getTypeFor(Config.OBJECT_CONTACT, referenceAttribute))
+                .thenReturn(referenceObjectType);
+
+        final SObject sObject = dataManagerUnderTest.constructSObject(ofShape);
+
+        assertThat(sObject.getField(originalField), is(nullValue()));
+        assertThat(sObject.getSObjectField(referenceAttribute), instanceOf(SObject.class));
+
+        final SObject refObject = (SObject) sObject.getSObjectField(referenceAttribute);
+        assertThat(refObject, is(account()));
+        assertThat(refObject.getField(referenceObjectExternalIdField), is(externalId));
     }
 
     @Test(expected = IllegalArgumentException.class)
