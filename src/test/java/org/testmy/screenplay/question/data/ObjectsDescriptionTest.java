@@ -4,6 +4,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
@@ -33,29 +35,44 @@ public class ObjectsDescriptionTest {
     DescribeSObjectResult objectDescription;
 
     @Before
-    public void before(){
+    public void before() {
         when(actor.asksFor(any())).thenReturn(connection);
     }
 
     @Test
-    public void usesPartnerConnectionToGetObjectsDescriptionsByType() throws ConnectionException{
+    public void usesPartnerConnectionToGetObjectsDescriptionsByType() throws ConnectionException {
         final String objectType = "Account";
         final Set<String> objectTypes = Collections.singleton(objectType);
         final ObjectsDescription objectsDescriptionQuestion = new ObjectsDescription(objectTypes);
-        when(connection.describeSObjects(new String[]{objectType}))
-            .thenReturn(new DescribeSObjectResult[]{objectDescription});
-        
+        when(connection.describeSObjects(new String[] {
+                objectType
+        }))
+                .thenReturn(new DescribeSObjectResult[] {
+                        objectDescription
+                });
+
         final List<DescribeSObjectResult> objectsDescriptionResult = objectsDescriptionQuestion.answeredBy(actor);
 
         assertThat(objectsDescriptionResult, hasSize(objectTypes.size()));
         assertThat(objectsDescriptionResult.get(0), is(objectDescription));
     }
 
+    @Test
+    public void emptyListIfNoObjectsPassed() throws ConnectionException {
+        final Set<String> objectTypes = Collections.emptySet();
+        final ObjectsDescription objectsDescriptionQuestion = new ObjectsDescription(objectTypes);
+
+        final List<DescribeSObjectResult> objectsDescriptionResult = objectsDescriptionQuestion.answeredBy(actor);
+
+        assertThat(objectsDescriptionResult, hasSize(0));
+        verify(connection, never()).describeSObjects(any());
+    }
+
     @Test(expected = TestRuntimeException.class)
-    public void throwsExceptionIfConnectionExceptionHappened() throws ConnectionException{
-        final ObjectsDescription objectsDescriptionQuestion = new ObjectsDescription(Collections.emptySet());
+    public void throwsExceptionIfConnectionExceptionHappened() throws ConnectionException {
+        final ObjectsDescription objectsDescriptionQuestion = new ObjectsDescription(Collections.singleton("any type"));
         when(connection.describeSObjects(any())).thenThrow(new ConnectionException());
-        
+
         objectsDescriptionQuestion.answeredBy(actor);
     }
 }

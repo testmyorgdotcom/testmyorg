@@ -11,9 +11,11 @@ import com.sforce.ws.ConnectionException;
 import org.testmy.error.TestRuntimeException;
 import org.testmy.screenplay.factory.question.Partner;
 
+import lombok.Data;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Question;
 
+@Data
 public class SObjectsQuestion implements Question<List<SObject>> {
     private String query;
 

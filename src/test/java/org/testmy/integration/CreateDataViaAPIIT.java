@@ -1,4 +1,4 @@
-package org.testmy;
+package org.testmy.integration;
 
 import static net.serenitybdd.screenplay.GivenWhenThen.and;
 import static net.serenitybdd.screenplay.GivenWhenThen.givenThat;
@@ -18,19 +18,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testmy.data.matchers.HasFields;
-import org.testmy.screenplay.ability.InitializeFramework;
 import org.testmy.screenplay.act.CleanData;
 import org.testmy.screenplay.act.CreateData;
 import org.testmy.screenplay.factory.Login;
 import org.testmy.screenplay.factory.ability.Authenticate;
 import org.testmy.screenplay.factory.ability.Call;
+import org.testmy.screenplay.factory.performable.Initialize;
 import org.testmy.screenplay.question.QueryData;
 
 import net.serenitybdd.junit.runners.SerenityRunner;
 import net.serenitybdd.screenplay.Actor;
 
 @RunWith(SerenityRunner.class)
-public class CreateDataViaAPITest {
+public class CreateDataViaAPIIT {
     Actor admin = Actor.named("Andim");
 
     @Before
@@ -38,7 +38,6 @@ public class CreateDataViaAPITest {
         givenThat(admin)
                 .can(Authenticate.as("Admin"))
                 .can(Call.partnerApi())
-                .can(InitializeFramework.withMetadata())
                 .wasAbleTo(Login.viaAPI());
     }
 
@@ -54,14 +53,13 @@ public class CreateDataViaAPITest {
                 hasField("ExternalId__c", "123"),
                 hasName("Test Account"));
 
-        givenThat(admin).wasAbleTo(InitializeMetadata.forObjects("Account", "Contact"));
+        givenThat(admin).wasAbleTo(Initialize.referenceAttributesFor("Account", "Contact"));
         and(admin).wasAbleTo(CreateData.record(account));
 
         final HasFields contactWithReferenceAttribute = ofShape(
                 contact(),
                 hasField("LastName", "Test User"),
-                hasField("Account.ExternalId__c", "123")
-        );
+                hasField("Account.ExternalId__c", "123"));
 
         when(admin).attemptsTo(CreateData.record(contactWithReferenceAttribute));
 

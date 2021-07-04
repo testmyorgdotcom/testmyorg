@@ -50,10 +50,14 @@ public class ReferenceAttributeTypeProviderTest {
         final Field field = mock(Field.class);
         final DescribeSObjectResult objectDescription = mock(DescribeSObjectResult.class);
         when(objectDescription.getName()).thenReturn(sObjectType);
-        when(objectDescription.getFields()).thenReturn(new Field[]{field});
+        when(objectDescription.getFields()).thenReturn(new Field[] {
+                field
+        });
         when(field.getRelationshipName()).thenReturn(sObjectReferenceAttribute);
         when(field.getType()).thenReturn(FieldType.reference);
-        when(field.getReferenceTo()).thenReturn(new String[]{referenceAttributeType});
+        when(field.getReferenceTo()).thenReturn(new String[] {
+                referenceAttributeType
+        });
         dataProvider.init(Collections.singletonList(objectDescription));
     }
 }

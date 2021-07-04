@@ -2,14 +2,14 @@ package org.testmy.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
+
+import com.sforce.soap.partner.sobject.SObject;
 
 import org.junit.Test;
-import org.testmy.data.RecordTypeIdProvider.RecordType;
 import org.testmy.error.TestRuntimeException;
 
 public class RecordTypeIdProviderTest {
@@ -45,11 +45,10 @@ public class RecordTypeIdProviderTest {
     private void initRecordType(final String objectType,
             final String recordTypeName,
             final String recordTypeId) {
-        final Map<String, List<RecordType>> recordTypesByObjectType = new HashMap<String, List<RecordType>>() {
-            {
-                put(objectType, Arrays.asList(new RecordType(recordTypeName, recordTypeId)));
-            }
-        };
-        rtIdProvider.init(recordTypesByObjectType);
+        final SObject recordTypeSObject = mock(SObject.class);
+        when(recordTypeSObject.getField("SobjectType")).thenReturn(objectType);
+        when(recordTypeSObject.getField("DeveloperName")).thenReturn(recordTypeName);
+        when(recordTypeSObject.getId()).thenReturn(recordTypeId);
+        rtIdProvider.init(Collections.singletonList(recordTypeSObject));
     }
 }

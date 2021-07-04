@@ -34,14 +34,14 @@ public class ReferenceAttributeTypeProvider {
     public void init(final List<DescribeSObjectResult> objectsDescription) {
         objectsDescription.forEach(objectDescription -> {
             final String objectType = objectDescription.getName();
-            for(final Field field: objectDescription.getFields()){
-                if(FieldType.reference.equals(field.getType())){
+            for (final Field field : objectDescription.getFields()) {
+                if (FieldType.reference.equals(field.getType())) {
                     final List<ReferenceAttribute> referenceAttributes = referenceAttributesByType.computeIfAbsent(
-                        objectType,
-                        ot -> new ArrayList<>());
+                            objectType,
+                            ot -> new ArrayList<>());
                     referenceAttributes.add(new ReferenceAttribute(
-                        field.getRelationshipName(),
-                        field.getReferenceTo()[0]));
+                            field.getRelationshipName(),
+                            field.getReferenceTo()[0]));
                 }
             }
         });
