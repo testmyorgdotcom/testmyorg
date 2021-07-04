@@ -8,7 +8,7 @@ import org.testmy.config.Config;
 import org.testmy.data.matchers.HasFields;
 import org.testmy.error.TestRuntimeException;
 import org.testmy.screenplay.ability.AbilityProvider;
-import org.testmy.screenplay.question.data.SObjectsQuestion;
+import org.testmy.screenplay.factory.question.SObjects;
 
 import net.serenitybdd.core.steps.Instrumented;
 import net.serenitybdd.screenplay.Actor;
@@ -29,7 +29,7 @@ public class QueryData implements Question<SObject> {
     @Override
     public SObject answeredBy(Actor actor) {
         final String query = objectShape.toSoql();
-        final List<SObject> sObjects = actor.asksFor(SObjectsQuestion.withQuery(query));
+        final List<SObject> sObjects = actor.asksFor(SObjects.usingQuery(query));
         if (sObjects.isEmpty()) {
             throw new TestRuntimeException(String.format(Config.PATTERN_MESSAGE_ERROR_NO_DATA_FOR_QUERY, query));
         }

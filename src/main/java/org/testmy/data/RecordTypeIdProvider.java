@@ -3,6 +3,9 @@ package org.testmy.data;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.sforce.soap.partner.sobject.SObject;
 
 import org.testmy.error.TestRuntimeException;
 
@@ -27,7 +30,16 @@ public class RecordTypeIdProvider {
                                 + "'' record type found for object type: " + objectType + ", "));
     }
 
-    public void init(final Map<String, List<RecordType>> recordTypesByObjectType) {
+    public void init(final List<SObject> recordTypes) {
+        final Map<String, List<RecordType>> recordTypesByObjectType = recordTypes.stream()
+                .collect(Collectors.groupingBy(sObject -> sObject.getField("SobjectType").toString(),
+                        Collectors.mapping(
+                                sObject -> {
+                                    final RecordType recordType = new RecordType(
+                                            sObject.getField("DeveloperName").toString(),
+                                            sObject.getId());
+                                    return recordType;
+                                }, Collectors.toList())));
         this.recordTypesByObjectType.putAll(recordTypesByObjectType);
     }
 

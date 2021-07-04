@@ -9,29 +9,23 @@ import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 
 import org.testmy.error.TestRuntimeException;
-import org.testmy.screenplay.ability.AbilityProvider;
-import org.testmy.screenplay.ability.CallPartnerSoapApi;
+import org.testmy.screenplay.factory.question.Partner;
 
-import net.serenitybdd.core.steps.Instrumented;
+import lombok.Data;
 import net.serenitybdd.screenplay.Actor;
 import net.serenitybdd.screenplay.Question;
 
+@Data
 public class SObjectsQuestion implements Question<List<SObject>> {
-    AbilityProvider abilityProvider = AbilityProvider.getInstance();
     private String query;
 
     public SObjectsQuestion(final String query) {
         this.query = query;
     }
 
-    public static SObjectsQuestion withQuery(String queryQuestion) {
-        return Instrumented.instanceOf(SObjectsQuestion.class).withProperties(queryQuestion);
-    }
-
     @Override
     public List<SObject> answeredBy(final Actor actor) {
-        final CallPartnerSoapApi callPartnerSoapApi = abilityProvider.as(actor, CallPartnerSoapApi.class);
-        final PartnerConnection connection = callPartnerSoapApi.ensureConnection();
+        final PartnerConnection connection = actor.asksFor(Partner.connection());
         return queryDataUsing(connection);
     }
 
