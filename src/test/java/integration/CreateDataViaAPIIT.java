@@ -29,7 +29,6 @@ import org.testmy.screenplay.factory.ability.Authenticate;
 import org.testmy.screenplay.factory.ability.Call;
 import org.testmy.screenplay.factory.performable.Initialize;
 import org.testmy.screenplay.factory.question.SObjects;
-import org.testmy.screenplay.question.QueryData;
 
 import net.serenitybdd.junit.runners.SerenityRunner;
 import net.serenitybdd.screenplay.Actor;
@@ -59,7 +58,7 @@ public class CreateDataViaAPIIT {
 
         when(admin).attemptsTo(CreateData.record(account));
 
-        then(admin).should(seeThat(SObjects.usingQuery(account.toSoql()), is(notNullValue())));
+        then(admin).should(seeThat(SObjects.usingQuery(account.toSoql()), hasSize(1)));
     }
 
     @Test(expected = TestRuntimeException.class)
