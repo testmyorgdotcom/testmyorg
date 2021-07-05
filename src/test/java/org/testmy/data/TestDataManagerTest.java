@@ -76,17 +76,19 @@ public class TestDataManagerTest {
 
     @Test
     public void ensureObject_createsObjectIfNotExistsWithASimilarShape() {
-        final String fieldName = "field", fieldValue = "value";
-        final ConstructingMatcher sObjectShape = hasField(fieldName, fieldValue);
+        final ConstructingMatcher sObjectShape = ofShape(hasField("field", "value"), contact());
+
         final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
+
         assertThat(sObject, is(sObjectShape));
     }
 
     @Test
     public void ensureObject_storesCreatedObjectInCache() {
-        final String fieldName = "field", fieldValue = "value";
-        final ConstructingMatcher sObjectShape = hasField(fieldName, fieldValue);
+        final ConstructingMatcher sObjectShape = ofShape(hasField("field", "value"), contact());
+
         final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
+
         assertThat(dataManagerUnderTest.getData().contains(sObject), is(true));
     }
 
