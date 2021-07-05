@@ -29,8 +29,8 @@ public class Matchers {
         return new HasField("Name", name);
     }
 
-    public static HasField hasRecordTypeName(final String recordTypeName) {
-        return new HasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, recordTypeName);
+    public static HasField recordType(final String developerName) {
+        return new HasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, developerName);
     }
 
     public static HasFields ofShape(HasField... matchers) {

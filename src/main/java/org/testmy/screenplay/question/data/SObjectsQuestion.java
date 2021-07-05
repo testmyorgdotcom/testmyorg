@@ -8,6 +8,8 @@ import com.sforce.soap.partner.QueryResult;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testmy.error.TestRuntimeException;
 import org.testmy.screenplay.factory.question.Partner;
 
@@ -17,6 +19,7 @@ import net.serenitybdd.screenplay.Question;
 
 @Data
 public class SObjectsQuestion implements Question<List<SObject>> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SObjectsQuestion.class);
     private String query;
 
     public SObjectsQuestion(final String query) {
@@ -30,6 +33,7 @@ public class SObjectsQuestion implements Question<List<SObject>> {
     }
 
     private List<SObject> queryDataUsing(final PartnerConnection partnerConnection) {
+        LOGGER.info(query);
         try {
             final QueryResult queryResult = partnerConnection.query(query);
             final SObject[] records = queryResult.getRecords();
