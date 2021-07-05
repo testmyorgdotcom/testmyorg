@@ -66,24 +66,15 @@ public class HasFieldTest {
         assertThat(testObject, is(fieldShape));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void visitForUpdateNotSupportedIfBasedOnMatcherConstructor() {
-        final SObject testObject = new SObject();
-        final String fieldName = "Name";
-        final String fieldValue = "Value";
-        final HasField fieldShape = hasField(fieldName, equalTo(fieldValue));
-        fieldShape.visitForUpdate(testObject);
-    }
-
     @Test
     public void constructSoqlComponent() {
         final String fieldName = "name", fieldValue = "value";
         final HasField fieldShape = hasField(fieldName, fieldValue);
         assertThat(
-                fieldShape.getSoqlComponent().get().getFieldToSelect(),
+                fieldShape.getSoqlComponent().getFieldToSelect(),
                 equalTo(soqlComponent(fieldName, fieldValue).getFieldToSelect()));
         assertThat(
-                fieldShape.getSoqlComponent().get().getWhereCriterion(),
+                fieldShape.getSoqlComponent().getWhereCriterion(),
                 equalTo(soqlComponent(fieldName, fieldValue).getWhereCriterion()));
     }
 }

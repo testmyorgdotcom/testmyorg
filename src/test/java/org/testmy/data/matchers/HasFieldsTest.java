@@ -31,9 +31,9 @@ public class HasFieldsTest {
         final HasField shapePart1 = hasField("fn1", "v1");
         final HasField shapePart2 = hasField("fn2", "v2");
         final SoqlBuilder soqlBuilder = soqlBuilder(
-                shapePart1.getSoqlComponent().get(),
-                shapePart2.getSoqlComponent().get(),
-                account().getSoqlComponent().get());
+                shapePart1.getSoqlComponent(),
+                shapePart2.getSoqlComponent(),
+                account().getSoqlComponent());
         final HasFields objectShape = ofShape(
                 shapePart1,
                 shapePart2,

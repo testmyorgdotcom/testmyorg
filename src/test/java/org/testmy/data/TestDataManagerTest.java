@@ -2,7 +2,6 @@ package org.testmy.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyCollectionOf;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
@@ -100,14 +99,6 @@ public class TestDataManagerTest {
         when(salesforceAction.insert(any())).thenReturn(sfId);
         final SObject sObject = dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
         assertThat(sObject, hasId(sfId));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void ensureObject_notYetSupportedFieldValuesShapes() {
-        final String fieldName = "field", fieldValue = "value";
-        final Matcher<String> fieldValueShape = is(equalTo(fieldValue));
-        final ConstructingMatcher sObjectShape = hasField(fieldName, fieldValueShape);
-        dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
     }
 
     @Test
