@@ -52,7 +52,7 @@ public class CreateDataViaAPIIT {
     }
 
     @Test
-    public void createData_simpleRecordWithSimpleAttributes(){
+    public void createData_simpleRecordWithSimpleAttributes() {
         final HasFields account = ofShape(
                 account(),
                 hasName("Hello World"));
@@ -63,7 +63,7 @@ public class CreateDataViaAPIIT {
     }
 
     @Test(expected = TestRuntimeException.class)
-    public void createData_cannotUseRecordTypeDeveloperNamesWithoutInitialization(){
+    public void createData_cannotUseRecordTypeDeveloperNamesWithoutInitialization() {
         final HasFields account = ofShape(
                 account(),
                 recordType("Test_Framework"),
@@ -73,7 +73,7 @@ public class CreateDataViaAPIIT {
     }
 
     @Test
-    public void createData_withRecordTypeDeveloperNameUsed(){
+    public void createData_withRecordTypeDeveloperNameUsed() {
         givenThat(admin).wasAbleTo(Initialize.allRecordTypes());
         final HasFields account = ofShape(
                 account(),
@@ -81,7 +81,7 @@ public class CreateDataViaAPIIT {
                 hasName("Hello World Opportunity"));
 
         when(admin).attemptsTo(CreateData.record(account));
-        
+
         then(admin).should(seeThat(SObjects.usingQuery(account.toSoql()), hasSize(1)));
     }
 

@@ -4,17 +4,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.testmy.error.AbilityIsAbsentException;
 
 import net.serenitybdd.screenplay.Actor;
 
 public class SafeAbilityTest {
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
     Actor actorWithAbility = Actor.named("Creator");
     Actor actorWithoutAbility = Actor.named("Heart-Breaker");
 
@@ -34,9 +31,12 @@ public class SafeAbilityTest {
         final String errorMessage = String.format("Actor: %s has no requested ability: %s",
                 actorWithoutAbility.getName(),
                 TestAbility.class.getSimpleName());
-        exceptionRule.expect(AbilityIsAbsentException.class);
-        exceptionRule.expectMessage(errorMessage);
-        SafeAbility.as(actorWithoutAbility, TestAbility.class);
+
+        final AbilityIsAbsentException expected = Assert.assertThrows(AbilityIsAbsentException.class, () -> {
+            SafeAbility.as(actorWithoutAbility, TestAbility.class);
+        });
+
+        assertThat(expected.getMessage(), is(errorMessage));
     }
 
     public static class TestAbility implements SalesforceAbility {

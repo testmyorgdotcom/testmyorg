@@ -64,13 +64,13 @@ public class TestDataManager implements Config {
         }
     }
 
-    private Map<String, SObject> constructReferenceAttributes(final SObject result) {
-        final Iterator<XmlObject> xmlObjectIt = result.getChildren();
+    private Map<String, SObject> constructReferenceAttributes(final SObject mainObject) {
+        final Iterator<XmlObject> xmlObjectIt = mainObject.getChildren();
         final Map<String, SObject> referenceAttributesWithNewValues = new HashMap<>();
         while (xmlObjectIt.hasNext()) {
             final XmlObject xmlObject = xmlObjectIt.next();
             if (isReferenceAttribute(xmlObject)) {
-                final SObject referenceObject = constructReferenceObject(result, xmlObject);
+                final SObject referenceObject = constructReferenceObject(mainObject, xmlObject);
                 final String complexReferenceFieldName = xmlObject.getName().getLocalPart();
                 referenceAttributesWithNewValues.put(complexReferenceFieldName, referenceObject);
             }
