@@ -13,6 +13,6 @@ public class HasIdTest {
         final String sfId = "005xyz...";
         final SObject sobject = new SObject();
         sobject.setId(sfId);
-        assertThat(sobject, hasId());
+        assertThat(sobject, hasId(sfId));
     }
 }

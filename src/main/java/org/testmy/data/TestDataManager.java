@@ -1,7 +1,5 @@
 package org.testmy.data;
 
-import static org.testmy.data.matchers.Matchers.hasId;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.bind.XmlObject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matcher;
 import org.testmy.config.Config;
 import org.testmy.data.matchers.ConstructingMatcher;
@@ -113,7 +112,7 @@ public class TestDataManager implements Config {
 
     public void cacheExistingShape(final ConstructingMatcher ofShape) {
         final SObject sObject = constructSObject(ofShape);
-        if (!hasId().matches(sObject)) {
+        if (StringUtils.isBlank(sObject.getId())) {
             throw new IllegalArgumentException("Cannot add objects without Id: " + sObject);
         }
         addToCache(sObject);

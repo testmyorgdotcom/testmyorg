@@ -1,11 +1,12 @@
 package org.testmy.screenplay.act;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-import static org.testmy.data.matchers.Matchers.hasId;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
@@ -60,7 +61,7 @@ public class CreateDataTest {
         createDataRecord.performAs(mike);
         final List<SObject> testData = testDataManager.getData();
         assertThat(testData, hasSize(1));
-        assertThat(testData.get(0), hasId());
+        assertThat(testData.get(0).getId(), not(emptyOrNullString()));
     }
 
     private CreateData createRecordForWithIjectedMocks(final ConstructingMatcher ofShape) {

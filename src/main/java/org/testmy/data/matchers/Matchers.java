@@ -1,24 +1,11 @@
 package org.testmy.data.matchers;
 
-import static org.hamcrest.Matchers.emptyOrNullString;
-import static org.hamcrest.Matchers.not;
-
-import org.hamcrest.Matcher;
 import org.testmy.config.Config;
 
 public class Matchers {
     public static HasField hasField(final String fieldName,
             final Object fieldValue) {
         return new HasField(fieldName, fieldValue);
-    }
-
-    public static HasField hasField(final String fieldName,
-            final Matcher<? extends Object> fieldValueMatcher) {
-        return new HasField(fieldName, fieldValueMatcher);
-    }
-
-    public static HasField hasId() {
-        return new HasField("Id", not(emptyOrNullString()));
     }
 
     public static HasField hasId(final String id) {

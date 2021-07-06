@@ -30,7 +30,7 @@ public class HasFields extends AllOf<SObject> implements ConstructingMatcher {
     public String toSoql() {
         return new SoqlBuilder(
                 objectShapeComponents.stream()
-                        .map(hf -> hf.getSoqlComponent().get())
+                        .map(hf -> hf.getSoqlComponent())
                         .collect(Collectors.toList())
                         .toArray(new SoqlComponent[0]))
                                 .buildSoql();
