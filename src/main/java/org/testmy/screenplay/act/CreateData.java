@@ -4,7 +4,7 @@ import com.sforce.soap.partner.PartnerConnection;
 
 import org.testmy.data.SalesforceDataAction;
 import org.testmy.data.TestDataManager;
-import org.testmy.data.matchers.HasFields;
+import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.screenplay.factory.question.Partner;
 
 import lombok.NoArgsConstructor;
@@ -17,13 +17,13 @@ import net.thucydides.core.annotations.Shared;
 public class CreateData implements Task {
     @Shared
     TestDataManager testDataManager;
-    private HasFields objectShape;
+    private ConstructingMatcher objectShape;
 
-    protected CreateData(final HasFields objectShape) {
+    protected CreateData(final ConstructingMatcher objectShape) {
         this.objectShape = objectShape;
     }
 
-    public static CreateData record(HasFields ofShape) {
+    public static CreateData record(ConstructingMatcher ofShape) {
         return Instrumented.instanceOf(CreateData.class).withProperties(ofShape);
     }
 
