@@ -1,6 +1,5 @@
 package org.testmy.data;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -29,10 +28,6 @@ public class TestDataManager implements Config {
     private ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
     private List<SObject> sObjects = new LinkedList<>();
     private Set<String> sfIdsOfObjectsFoundInSalesforce = new HashSet<>();
-
-    public List<SObject> getData() {
-        return Collections.unmodifiableList(sObjects);
-    }
 
     public Optional<SObject> findObject(Matcher<SObject> sObjectShape) {
         return sObjects.stream().filter(sObjectShape::matches).findFirst();
