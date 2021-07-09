@@ -1,13 +1,18 @@
 package org.testmy.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyCollectionOf;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testmy.data.matchers.Matchers.hasField;
@@ -16,22 +21,24 @@ import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
 import static org.testmy.data.matchers.ObjectMatchers.contact;
+import static org.testmy.data.matchers.ObjectMatchers.opportunity;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.IntStream;
 
 import com.sforce.soap.partner.sobject.SObject;
 
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.testmy.config.Config;
 import org.testmy.data.matchers.ConstructingMatcher;
+import org.testmy.data.matchers.HasFields;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
@@ -41,6 +48,8 @@ public class TestDataManagerTest {
     private ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
     @Mock
     private SalesforceDataAction salesforceAction;
+    @Mock
+    private SalesforceCleanDataAction salesforceCleanAction;
     @InjectMocks
     private TestDataManager dataManagerUnderTest;
 
@@ -50,31 +59,7 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void hasDataCache() {
-        assertThat(dataManagerUnderTest.getData(), is(emptyCollectionOf(SObject.class)));
-    }
-
-    @Test
-    public void canAddDataIntoCache() {
-        final int elementsInCache = 3;
-        IntStream.range(0, elementsInCache).forEach(i -> dataManagerUnderTest.addToCache(new SObject()));
-        assertThat(dataManagerUnderTest.getData(), hasSize(elementsInCache));
-    }
-
-    @Test
-    public void findObject_usesMatcher() {
-        final String fieldName = "field", fieldValue = "value";
-        final Matcher<SObject> objectShape = hasField(fieldName, fieldValue);
-        final SObject objInCache = new SObject();
-        objInCache.setField(fieldName, fieldValue);
-        dataManagerUnderTest.addToCache(objInCache);
-        final Optional<SObject> foundObject = dataManagerUnderTest.findObject(objectShape);
-        assertThat(foundObject.isPresent(), is(true));
-        assertThat(foundObject.get(), is(objectShape));
-    }
-
-    @Test
-    public void ensureObject_createsObjectIfNotExistsWithASimilarShape() {
+    public void ensureObject_guaranteesSObjectOfTheProvidedShape() {
         final ConstructingMatcher sObjectShape = ofShape(hasField("field", "value"), contact());
 
         final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
@@ -83,86 +68,220 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void ensureObject_storesCreatedObjectInCache() {
-        final ConstructingMatcher sObjectShape = ofShape(hasField("field", "value"), contact());
-
-        final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
-
-        assertThat(dataManagerUnderTest.getData().contains(sObject), is(true));
-    }
-
-    @Test
     public void ensureObject_createsObjectInSalesforce() {
-        final String sfId = "Salesforce Id";
-        final String clientName = "Test Client";
-        final ConstructingMatcher clientShape = ofShape(account(), hasName(clientName));
-        when(salesforceAction.insert(any())).thenReturn(sfId);
-        final SObject sObject = dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
-        assertThat(sObject, hasId(sfId));
+        final HasFields clientShape = ofShape(account());
+
+        dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
+
+        verify(salesforceAction).insert(any());
     }
 
     @Test
-    public void cacheExistingShape_addDataToCacheDirectlySKippingStoreInSalesforce() {
+    public void ensureObject_createsObjectInSalesforceOnlyOnce() {
+        final int amountOfCallsToEnsure = 10;
+        final HasFields clientShape = ofShape(account());
+
+        for (int i = 0; i < amountOfCallsToEnsure; i++) {
+            dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
+        }
+
+        verify(salesforceAction, times(1)).insert(any());
+    }
+
+    @Test
+    public void findObject_canFindEnsuredObjectsOnly() {
+        final HasFields objectShape = ofShape(account());
+
+        assertThat(dataManagerUnderTest.findObject(objectShape), is(Optional.empty()));
+
+        dataManagerUnderTest.ensureObject(objectShape, salesforceAction);
+
+        assertThat(dataManagerUnderTest.findObject(objectShape).get(), objectShape);
+    }
+
+    @Test
+    public void findObjects_canFindEnsuredObjectsOnly() {
+        final HasFields objectShape = ofShape(account());
+
+        assertThat(dataManagerUnderTest.findObjects(objectShape), is(empty()));
+
+        dataManagerUnderTest.ensureObject(objectShape, salesforceAction);
+
+        assertThat(dataManagerUnderTest.findObjects(objectShape), contains(objectShape));
+    }
+
+    @Test
+    public void findObjects_findsAllMatchingObjects() {
+        final HasFields objectShape1 = ofShape(account(), hasName("Client 1"));
+        final HasFields objectShape2 = ofShape(account(), hasName("Client 2"));
+        final HasFields objectShape3 = ofShape(contact());
+
+        dataManagerUnderTest.ensureObject(objectShape1, salesforceAction);
+        dataManagerUnderTest.ensureObject(objectShape2, salesforceAction);
+        dataManagerUnderTest.ensureObject(objectShape3, salesforceAction);
+
+        assertThat(dataManagerUnderTest.findObjects(account()), hasSize(2));
+        assertThat(dataManagerUnderTest.findObjects(account()), containsInAnyOrder(objectShape1, objectShape2));
+    }
+
+    @Test
+    public void cacheExistingShape_makesItSearchableWithoutStoringToSalesforce() {
         final ConstructingMatcher ofShape = ofShape(account(), hasId("003xyz..."), hasName("Test Client"));
+
+        assertThat(dataManagerUnderTest.findObject(ofShape), is(Optional.empty()));
+
         dataManagerUnderTest.cacheExistingShape(ofShape);
-        assertThat(dataManagerUnderTest.findObject(ofShape).isPresent(), is(true));
+
         assertThat(dataManagerUnderTest.findObject(ofShape).get(), ofShape);
         verify(salesforceAction, never()).insert(any());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void cacheExistingShape_failIfTypeIsMissing() {
-        final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
-        dataManagerUnderTest.cacheExistingShape(ofShape);
-    }
+    @Test
+    public void cacheExistingShape_failIfShapeWithoutType() {
+        final ConstructingMatcher ofShape = ofShape(hasName("Test Client"));
 
-    @Test(expected = IllegalArgumentException.class)
-    public void cacheExistingShape_failIfIdIsMissing() {
-        final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
-        dataManagerUnderTest.cacheExistingShape(ofShape);
+        final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> {
+            dataManagerUnderTest.cacheExistingShape(ofShape);
+        });
+
+        assertThat(iae.getMessage(), containsString("shape without 'type' property cannot construct SObject"));
     }
 
     @Test
-    public void constructSObject_replaceRecordTypeNameWithRecordTypeId() {
+    public void cacheExistingShape_failIfShapeWithoutId() {
+        final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
+
+        final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> {
+            dataManagerUnderTest.cacheExistingShape(ofShape);
+        });
+
+        assertThat(iae.getMessage(), containsString("Cannot add objects without Id"));
+    }
+
+    @Test
+    public void constructSObjectToStore_replacesRecordTypeNameWithRecordTypeId() {
         final String recordTypeId = "0x123...";
-        final String recordTypeName = "Sales Opportunity";
         final ConstructingMatcher ofShape = ofShape(
-                hasField("type", Config.OBJECT_OPPORTUNITY),
-                hasField(Config.FIELD_RECORDTYPE_DEVELOPERNAME, recordTypeName));
-        when(recordTypeIdProvider.getIdFor(Config.OBJECT_OPPORTUNITY, recordTypeName)).thenReturn(recordTypeId);
+                opportunity(),
+                hasField("RecordType.DeveloperName", "Sales_Opportunity"));
+        when(recordTypeIdProvider.getIdFor("Opportunity", "Sales_Opportunity")).thenReturn(recordTypeId);
 
-        final SObject sObject = dataManagerUnderTest.constructSObject(ofShape);
+        final SObject sObject = dataManagerUnderTest.constructSObjectToStore(ofShape);
 
-        assertThat(sObject.getField(Config.FIELD_RECORDTYPEID), is(recordTypeId));
-        assertThat(sObject.getField(Config.FIELD_RECORDTYPE_DEVELOPERNAME), is(nullValue()));
+        assertThat(sObject.getField("RecordTypeId"), is(recordTypeId));
+        assertThat(sObject.getField("RecordType.DeveloperName"), is(nullValue()));
     }
 
     @Test
-    public void constructSObject_replaceComplexFieldsWithReference() {
+    public void constructSObjectToStore_replacesComplexFieldsWithReference() {
         final String externalId = "123";
-        final String referenceAttribute = "CustomReference__r";
-        final String referenceObjectExternalIdField = "ExternalId";
-        final String originalField = referenceAttribute + "." + referenceObjectExternalIdField;
-        final String referenceObjectType = "Account";
         final ConstructingMatcher ofShape = ofShape(
                 contact(),
-                hasField(originalField, externalId));
-        when(referenceAttributeTypeProvider.getTypeFor(Config.OBJECT_CONTACT, referenceAttribute))
-                .thenReturn(referenceObjectType);
+                hasField("CustomReference__r.ExternalId", externalId));
+        when(referenceAttributeTypeProvider.getTypeFor("Contact", "CustomReference__r"))
+                .thenReturn("Account");
 
-        final SObject sObject = dataManagerUnderTest.constructSObject(ofShape);
+        final SObject sObject = dataManagerUnderTest.constructSObjectToStore(ofShape);
 
-        assertThat(sObject.getField(originalField), is(nullValue()));
-        assertThat(sObject.getSObjectField(referenceAttribute), instanceOf(SObject.class));
+        assertThat(sObject.getField("CustomReference__r.ExternalId"), is(nullValue()));
+        assertThat(sObject.getSObjectField("CustomReference__r"), instanceOf(SObject.class));
 
-        final SObject refObject = (SObject) sObject.getSObjectField(referenceAttribute);
+        final SObject refObject = (SObject) sObject.getSObjectField("CustomReference__r");
         assertThat(refObject, is(account()));
-        assertThat(refObject.getField(referenceObjectExternalIdField), is(externalId));
+        assertThat(refObject.getField("ExternalId"), is(externalId));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void constructSObject_faileIfTypeIsMissing() {
-        final ConstructingMatcher ofShape = ofShape(hasId("003xyz..."), hasName("Test Client"));
-        dataManagerUnderTest.constructSObject(ofShape);
+    public void constructSObjectToStore_faileIfTypeIsMissing() {
+        dataManagerUnderTest.constructSObjectToStore(hasName("Without Type"));
+    }
+
+    @Test
+    public void cleanData_deletesCreatedRecords() {
+        final String sfId1 = "1", sfId2 = "2", sfId3 = "3";
+        when(salesforceAction.insert(any())).thenReturn(sfId1, sfId2, sfId3);
+        dataManagerUnderTest.ensureObject(account(), salesforceAction);
+        dataManagerUnderTest.ensureObject(contact(), salesforceAction);
+        dataManagerUnderTest.ensureObject(opportunity(), salesforceAction);
+
+        dataManagerUnderTest.cleanData(salesforceCleanAction);
+
+        verify(salesforceCleanAction).cleanData(new HashSet<String>(Arrays.asList(sfId1, sfId2, sfId3)));
+    }
+
+    @Test
+    public void ensureObjectIfAbsent_checksIfRecordOfTheSameShapeExistsInSalesforce() {
+        final HasFields sObjectShape = ofShape(account());
+
+        dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
+
+        verify(salesforceAction).query(sObjectShape.toSoql());
+    }
+
+    @Test
+    public void ensureObjectIfAbsent_usesEnsuredObjects() {
+        final HasFields sObjectShape = ofShape(account());
+
+        final SObject ensuredObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
+
+        final SObject ensuredObjectWithIfAbsentCheck = dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape,
+                salesforceAction);
+
+        assertThat(ensuredObjectWithIfAbsentCheck, is(ensuredObject));
+
+        verify(salesforceAction, never()).query(sObjectShape.toSoql());
+    }
+
+    @Test
+    public void ensureObjectIfAbsent_usesFoundObject() {
+        final HasFields sObjectShape = ofShape(account());
+        final SObject objectFromSalesforce = new SObject("Account");
+        when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
+
+        final SObject foundObject = dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
+
+        assertThat(foundObject, is(objectFromSalesforce));
+    }
+
+    @Test
+    public void ensureObjectIfAbsent_foundObjectsAreAlsoUsedInEnsure() {
+        final HasFields sObjectShape = ofShape(account());
+        final SObject objectFromSalesforce = new SObject("Account");
+        when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
+
+        dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
+
+        final SObject ensuredObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
+
+        assertThat(ensuredObject, is(objectFromSalesforce));
+        verify(salesforceAction, never()).insert(any());
+    }
+
+    @Test
+    public void ensureObjectIfAbsent_createsObjectIfNotFound() {
+        final HasFields sObjectShape = ofShape(account());
+        when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.emptyList());
+
+        final SObject createdObject = dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
+
+        verify(salesforceAction).insert(any());
+
+        assertThat(dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction), is(createdObject));
+    }
+
+    @Test
+    public void ensureObjectIfAbsent_foundObjectsAreNotCleaned() {
+        final HasFields sObjectShape = ofShape(account());
+        final String existingSfId = "123";
+        final SObject objectFromSalesforce = new SObject("Account");
+        objectFromSalesforce.setId(existingSfId);
+
+        when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
+
+        dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
+
+        dataManagerUnderTest.cleanData(salesforceCleanAction);
+
+        verify(salesforceCleanAction, never()).cleanData(Collections.singleton(existingSfId));
     }
 }

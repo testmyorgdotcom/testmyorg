@@ -1,14 +1,22 @@
 package org.testmy.data;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.sforce.soap.partner.Error;
 import com.sforce.soap.partner.PartnerConnection;
+import com.sforce.soap.partner.QueryResult;
 import com.sforce.soap.partner.SaveResult;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testmy.error.TestRuntimeException;
 
 public class SalesforceDataAction {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SalesforceDataAction.class);
+
     private final PartnerConnection connection;
 
     public SalesforceDataAction(PartnerConnection connection) {
@@ -38,5 +46,15 @@ public class SalesforceDataAction {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    public List<SObject> query(final String soql) {
+        try {
+            LOGGER.debug(soql);
+            final QueryResult queryResult = connection.query(soql);
+            return Arrays.asList(queryResult.getRecords());
+        } catch (final ConnectionException e) {
+            throw new TestRuntimeException(e);
+        }
     }
 }
