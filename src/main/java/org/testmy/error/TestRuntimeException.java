@@ -10,4 +10,9 @@ public class TestRuntimeException extends RuntimeException {
     public TestRuntimeException(final String errorMessage) {
         super(errorMessage);
     }
+
+    public TestRuntimeException(final String errorMessage,
+            final Throwable t) {
+        super(errorMessage, t);
+    }
 }
