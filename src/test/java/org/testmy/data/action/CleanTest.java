@@ -71,5 +71,4 @@ public class CleanTest {
             throw new IllegalStateException("should not reach here");
         }
     }
-
 }
