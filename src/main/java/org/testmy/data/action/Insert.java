@@ -1,4 +1,4 @@
-package org.testmy.data;
+package org.testmy.data.action;
 
 import java.util.List;
 
@@ -9,18 +9,18 @@ import com.sforce.ws.ConnectionException;
 
 import org.testmy.error.TestRuntimeException;
 
-public class SalesforceInsertDataAction {
+public class Insert {
     private final PartnerConnection connection;
-    private final SalesforceQueryDataAction queryAction;
+    private final Query queryAction;
 
-    private SalesforceInsertDataAction(final PartnerConnection connection,
-            final SalesforceQueryDataAction queryAction) {
+    private Insert(final PartnerConnection connection,
+            final Query queryAction) {
         this.connection = connection;
         this.queryAction = queryAction;
     }
 
-    public SalesforceInsertDataAction(PartnerConnection connection) {
-        this(connection, new SalesforceQueryDataAction(connection));
+    public Insert(PartnerConnection connection) {
+        this(connection, new Query(connection));
     }
 
     public String insert(final SObject sObject) {

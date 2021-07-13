@@ -5,7 +5,7 @@ import java.util.List;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.soap.partner.sobject.SObject;
 
-import org.testmy.data.SalesforceInsertDataAction;
+import org.testmy.data.action.Insert;
 import org.testmy.screenplay.factory.question.Partner;
 
 import lombok.Data;
@@ -27,7 +27,7 @@ public class SObjectsQuestion implements Question<List<SObject>> {
     }
 
     private List<SObject> queryDataUsing(final PartnerConnection partnerConnection) {
-        final SalesforceInsertDataAction sda = new SalesforceInsertDataAction(partnerConnection);
+        final Insert sda = new Insert(partnerConnection);
         return sda.query(query);
     }
 }

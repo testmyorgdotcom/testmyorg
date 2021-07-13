@@ -37,6 +37,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.testmy.data.action.Clean;
+import org.testmy.data.action.Insert;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.data.matchers.HasFields;
 
@@ -47,9 +49,9 @@ public class TestDataManagerTest {
     @Mock
     private ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
     @Mock
-    private SalesforceInsertDataAction salesforceAction;
+    private Insert salesforceAction;
     @Mock
-    private SalesforceCleanDataAction salesforceCleanAction;
+    private Clean salesforceCleanAction;
     @InjectMocks
     private TestDataManager dataManagerUnderTest;
 

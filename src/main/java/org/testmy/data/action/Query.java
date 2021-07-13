@@ -1,4 +1,4 @@
-package org.testmy.data;
+package org.testmy.data.action;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,18 +12,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testmy.error.TestRuntimeException;
 
-public class SalesforceQueryDataAction {
+public class Query {
     private Logger logger;
     private PartnerConnection connection;
 
-    private SalesforceQueryDataAction(final PartnerConnection connection,
+    private Query(final PartnerConnection connection,
             final Logger logger) {
         this.connection = connection;
         this.logger = logger;
     }
 
-    public SalesforceQueryDataAction(final PartnerConnection connection) {
-        this(connection, LoggerFactory.getLogger(SalesforceQueryDataAction.class));
+    public Query(final PartnerConnection connection) {
+        this(connection, LoggerFactory.getLogger(Query.class));
     }
 
     public List<SObject> query(final String soql) {

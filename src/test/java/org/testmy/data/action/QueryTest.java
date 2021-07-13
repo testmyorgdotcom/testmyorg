@@ -1,4 +1,4 @@
-package org.testmy.data;
+package org.testmy.data.action;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -28,13 +28,13 @@ import org.slf4j.Logger;
 import org.testmy.error.TestRuntimeException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SalesforceQueryDataActionTest {
+public class QueryTest {
     @Mock
     PartnerConnection connection;
     @Mock
     Logger logger;
     @InjectMocks
-    SalesforceQueryDataAction dataAction;
+    Query dataAction;
 
     @Before
     public void before() {

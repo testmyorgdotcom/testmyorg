@@ -1,4 +1,4 @@
-package org.testmy.data;
+package org.testmy.data.action;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -28,13 +28,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.testmy.error.TestRuntimeException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SalesforceInsertDataActionTest {
+public class InsertTest {
     @Mock
     PartnerConnection partnerConnection;
     @Mock
-    SalesforceQueryDataAction queryAction;
+    Query queryAction;
     @InjectMocks
-    SalesforceInsertDataAction action;
+    Insert action;
 
     @Before
     public void before() throws ConnectionException {

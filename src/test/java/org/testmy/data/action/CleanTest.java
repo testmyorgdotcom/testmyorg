@@ -1,4 +1,4 @@
-package org.testmy.data;
+package org.testmy.data.action;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -20,16 +20,17 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.testmy.data.DeleteResultProcessor;
 import org.testmy.error.TestRuntimeException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SalesforceCleanDataActionTest {
+public class CleanTest {
     @Mock
     DeleteResultProcessor deleteResultProcessor;
     @Mock
     PartnerConnection connection;
     @InjectMocks
-    SalesforceCleanDataAction cleanAction;
+    Clean cleanAction;
 
     @Test
     public void cleanData_deletesByIdsWithThePartnerConnectionProvided() throws ConnectionException {

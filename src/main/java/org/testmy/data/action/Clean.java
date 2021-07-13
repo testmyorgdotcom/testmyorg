@@ -1,4 +1,4 @@
-package org.testmy.data;
+package org.testmy.data.action;
 
 import java.util.Set;
 
@@ -6,19 +6,20 @@ import com.sforce.soap.partner.DeleteResult;
 import com.sforce.soap.partner.PartnerConnection;
 import com.sforce.ws.ConnectionException;
 
+import org.testmy.data.DeleteResultProcessor;
 import org.testmy.error.TestRuntimeException;
 
-public class SalesforceCleanDataAction {
+public class Clean {
     private DeleteResultProcessor deleteResultProcessor;
     private PartnerConnection connection;
 
-    private SalesforceCleanDataAction(final PartnerConnection partnerConnection,
+    private Clean(final PartnerConnection partnerConnection,
             final DeleteResultProcessor deleteResultProcessor) {
         this.connection = partnerConnection;
         this.deleteResultProcessor = deleteResultProcessor;
     }
 
-    public SalesforceCleanDataAction(final PartnerConnection partnerConnection) {
+    public Clean(final PartnerConnection partnerConnection) {
         this(partnerConnection, new DeleteResultProcessor());
     }
 
