@@ -36,23 +36,6 @@ public class DeleteResultProcessorTest {
         verify(logger, never()).info(any());
     }
 
-    @Test(expected = TestRuntimeException.class)
-    public void processResults_logsApexToDeleteFailedIds() {
-        final DeleteResult failedDeletion1 = constructResult(false, "1");
-        final DeleteResult failedDeletion2 = constructResult(false, "2");
-        final DeleteResult deleted = constructResult(true, "3");
-
-        final DeleteResult[] deletedResult = new DeleteResult[] {
-                failedDeletion1, failedDeletion2, deleted
-        };
-
-        processor.processResults(deletedResult);
-
-        verify(logger).info(
-                "Failed ids can be deleted via Apex: {}",
-                "Set<Id> ids = new Set<Id>{'1','2'}; delete ids;");
-    }
-
     @Test
     public void processResults_throwsRuntimeExceptionIfCouldNotDeleteSomeTestData() {
         final DeleteResult deleted = constructResult(true, "success id");
@@ -68,7 +51,23 @@ public class DeleteResultProcessorTest {
 
         assertThat(tre.getMessage(), containsString(failedToDelete.toString()));
         assertThat(tre.getMessage(), not(containsString(deleted.toString())));
+    }
 
+    @Test(expected = TestRuntimeException.class)
+    public void processResults_logsApexToDeleteFailedIds() {
+        final DeleteResult failedDeletion1 = constructResult(false, "1");
+        final DeleteResult failedDeletion2 = constructResult(false, "2");
+        final DeleteResult deleted = constructResult(true, "3");
+
+        final DeleteResult[] deletedResult = new DeleteResult[] {
+                failedDeletion1, failedDeletion2, deleted
+        };
+
+        processor.processResults(deletedResult);
+
+        verify(logger).info(
+                "Failed ids can be deleted via Apex: {}",
+                "Set<Id> ids = new Set<Id>{'1','2'}; delete ids;");
     }
 
     private DeleteResult constructResult(final Boolean deleted,
