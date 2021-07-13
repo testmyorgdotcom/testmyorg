@@ -158,4 +158,8 @@ public class TestDataManager implements Config {
             return foundObject.orElse(ensureObject(sObjectShape, salesforceAction));
         });
     }
+
+    public void ensureObjects(final List<HasFields> shapesToCreateInBulk,
+            final Insert salesforceAction) {
+    }
 }

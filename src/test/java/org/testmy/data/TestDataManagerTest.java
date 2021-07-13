@@ -8,6 +8,8 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +28,7 @@ import static org.testmy.data.matchers.ObjectMatchers.opportunity;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -41,6 +44,7 @@ import org.testmy.data.action.Clean;
 import org.testmy.data.action.Insert;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.data.matchers.HasFields;
+import org.testmy.data.matchers.Matchers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
@@ -285,5 +289,20 @@ public class TestDataManagerTest {
         dataManagerUnderTest.cleanData(salesforceCleanAction);
 
         verify(salesforceCleanAction, never()).cleanData(Collections.singleton(existingSfId));
+    }
+
+    @Test
+    public void ensureObjects_allowsToEnsureObjectsInBulk() {
+        final List<HasFields> shapesToCreateInBulk = Arrays.asList(
+            ofShape(account(), hasName("Test Client 1")),
+            ofShape(account(), hasName("Test Client 2")),
+            ofShape(account(), hasName("Test Client 3"))
+        );
+
+        dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
+
+        for(final HasFields shape: shapesToCreateInBulk){
+            assertThat(dataManagerUnderTest.findObject(shape), not(Optional.empty()));
+        }
     }
 }
