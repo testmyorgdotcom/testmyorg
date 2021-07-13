@@ -63,7 +63,7 @@ public class DeleteResultProcessorTest {
         };
 
         final TestRuntimeException tre = assertThrows(TestRuntimeException.class, () -> {
-                processor.processResults(deletedResult);
+            processor.processResults(deletedResult);
         });
 
         assertThat(tre.getMessage(), containsString(failedToDelete.toString()));

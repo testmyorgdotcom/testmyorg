@@ -47,7 +47,7 @@ public class TestDataManagerTest {
     @Mock
     private ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
     @Mock
-    private SalesforceDataAction salesforceAction;
+    private SalesforceInsertDataAction salesforceAction;
     @Mock
     private SalesforceCleanDataAction salesforceCleanAction;
     @InjectMocks

@@ -2,7 +2,7 @@ package org.testmy.screenplay.act;
 
 import com.sforce.soap.partner.PartnerConnection;
 
-import org.testmy.data.SalesforceDataAction;
+import org.testmy.data.SalesforceInsertDataAction;
 import org.testmy.data.TestDataManager;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.screenplay.factory.question.Partner;
@@ -30,6 +30,6 @@ public class CreateData implements Task {
     @Override
     public <T extends Actor> void performAs(T actor) {
         final PartnerConnection connection = actor.asksFor(Partner.connection());
-        testDataManager.ensureObject(objectShape, new SalesforceDataAction(connection));
+        testDataManager.ensureObject(objectShape, new SalesforceInsertDataAction(connection));
     }
 }

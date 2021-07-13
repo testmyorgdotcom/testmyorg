@@ -38,7 +38,7 @@ public class TestDataManager implements Config {
     }
 
     public SObject ensureObject(final ConstructingMatcher sObjectShape,
-            final SalesforceDataAction salesforceAction) {
+            final SalesforceInsertDataAction salesforceAction) {
         return findObject(sObjectShape).orElseGet(() -> {
             final String sfId = store(sObjectShape, salesforceAction);
             final SObject result = constructSObject(sObjectShape);
@@ -49,7 +49,7 @@ public class TestDataManager implements Config {
     }
 
     private String store(final ConstructingMatcher sObjectShape,
-            final SalesforceDataAction salesforceAction) {
+            final SalesforceInsertDataAction salesforceAction) {
         final SObject sObjectToStore = constructSObjectToStore(sObjectShape);
         return salesforceAction.insert(sObjectToStore);
     }
@@ -145,7 +145,7 @@ public class TestDataManager implements Config {
     }
 
     public SObject ensureObjectIfAbsent(final HasFields sObjectShape,
-            final SalesforceDataAction salesforceAction) {
+            final SalesforceInsertDataAction salesforceAction) {
         return findObject(sObjectShape).orElseGet(() -> {
             final Optional<SObject> foundObject = salesforceAction.query(sObjectShape.toSoql()).stream().findFirst();
             if (foundObject.isPresent()) {
