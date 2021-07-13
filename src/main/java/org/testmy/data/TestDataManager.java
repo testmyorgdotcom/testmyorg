@@ -16,6 +16,8 @@ import com.sforce.ws.bind.XmlObject;
 import org.apache.commons.lang3.StringUtils;
 import org.hamcrest.Matcher;
 import org.testmy.config.Config;
+import org.testmy.data.action.Clean;
+import org.testmy.data.action.Insert;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.data.matchers.HasFields;
 
@@ -38,7 +40,7 @@ public class TestDataManager implements Config {
     }
 
     public SObject ensureObject(final ConstructingMatcher sObjectShape,
-            final SalesforceDataAction salesforceAction) {
+            final Insert salesforceAction) {
         return findObject(sObjectShape).orElseGet(() -> {
             final String sfId = store(sObjectShape, salesforceAction);
             final SObject result = constructSObject(sObjectShape);
@@ -49,7 +51,7 @@ public class TestDataManager implements Config {
     }
 
     private String store(final ConstructingMatcher sObjectShape,
-            final SalesforceDataAction salesforceAction) {
+            final Insert salesforceAction) {
         final SObject sObjectToStore = constructSObjectToStore(sObjectShape);
         return salesforceAction.insert(sObjectToStore);
     }
@@ -134,7 +136,7 @@ public class TestDataManager implements Config {
         sObjects.add(sObject);
     }
 
-    public void cleanData(final SalesforceCleanDataAction salesforceCleanAction) {
+    public void cleanData(final Clean salesforceCleanAction) {
         final Set<String> sfIdsToDelete = sObjects.stream()
                 .map(so -> so.getId())
                 .filter(id -> !sfIdsOfObjectsFoundInSalesforce.contains(id))
@@ -145,7 +147,7 @@ public class TestDataManager implements Config {
     }
 
     public SObject ensureObjectIfAbsent(final HasFields sObjectShape,
-            final SalesforceDataAction salesforceAction) {
+            final Insert salesforceAction) {
         return findObject(sObjectShape).orElseGet(() -> {
             final Optional<SObject> foundObject = salesforceAction.query(sObjectShape.toSoql()).stream().findFirst();
             if (foundObject.isPresent()) {
