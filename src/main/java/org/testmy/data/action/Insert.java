@@ -33,7 +33,7 @@ public class Insert {
         this(connection, queryAction, LoggerFactory.getLogger(Insert.class));
     }
 
-    public Insert(PartnerConnection connection) {
+    public Insert(final PartnerConnection connection) {
         this(connection, new Query(connection));
     }
 
@@ -43,29 +43,48 @@ public class Insert {
 
     public List<String> insertObjects(final List<SObject> sObjects) {
         final AllOrNoneHeader_element initialState = connection.getAllOrNoneHeader();
+        configureToRollbackOnSingleFailure(initialState);
         try {
-            if (null == initialState || !initialState.isAllOrNone()) {
-                connection.setAllOrNoneHeader(true);
-            }
-            final SaveResult[] results = connection.create(sObjects.toArray(new SObject[0]));
-            final List<SaveResult> resultsAsList = Arrays.asList(results);
-            final List<SaveResult> failedResultsIfAny = resultsAsList.stream()
-                    .filter(s -> !s.getSuccess())
-                    .collect(Collectors.toList());
-            if (!failedResultsIfAny.isEmpty()) {
-                logger.error("Could not save some objects, so rolling back whole transaction: {}", failedResultsIfAny);
-                throw new TestRuntimeException("Could not create some records: " + failedResultsIfAny);
-            }
-            return Arrays.asList(results).stream().map(sr -> sr.getId()).collect(Collectors.toList());
+            final List<SaveResult> results = createRecords(sObjects);
+            failOnSingleFailure(results);
+            return extractSalesforceIds(results);
         } catch (final ConnectionException e) {
             throw new TestRuntimeException("Failed to create object:", e);
         } finally {
-            if (null != initialState && !initialState.isAllOrNone()) {
-                connection.setAllOrNoneHeader(initialState.isAllOrNone());
-            }
-            else if (null == initialState) {
-                connection.clearAllOrNoneHeader();
-            }
+            restoreAllOrNoneInitialState(initialState);
+        }
+    }
+
+    private List<SaveResult> createRecords(final List<SObject> sObjects) throws ConnectionException {
+        return Arrays.asList(connection.create(sObjects.toArray(new SObject[0])));
+    }
+
+    private List<String> extractSalesforceIds(final List<SaveResult> results) {
+        return results.stream().map(sr -> sr.getId()).collect(Collectors.toList());
+    }
+
+    private void restoreAllOrNoneInitialState(final AllOrNoneHeader_element initialState) {
+        if (null != initialState && !initialState.isAllOrNone()) {
+            connection.setAllOrNoneHeader(initialState.isAllOrNone());
+        }
+        else if (null == initialState) {
+            connection.clearAllOrNoneHeader();
+        }
+    }
+
+    private void failOnSingleFailure(final List<SaveResult> results) {
+        final List<SaveResult> failedResultsIfAny = results.stream()
+                .filter(s -> !s.getSuccess())
+                .collect(Collectors.toList());
+        if (!failedResultsIfAny.isEmpty()) {
+            logger.error("Could not save some objects, so rolling back whole transaction: {}", failedResultsIfAny);
+            throw new TestRuntimeException("Could not create some records: " + failedResultsIfAny);
+        }
+    }
+
+    private void configureToRollbackOnSingleFailure(final AllOrNoneHeader_element initialState) {
+        if (null == initialState || !initialState.isAllOrNone()) {
+            connection.setAllOrNoneHeader(true);
         }
     }
 
