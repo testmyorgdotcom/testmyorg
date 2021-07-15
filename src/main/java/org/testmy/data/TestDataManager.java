@@ -159,7 +159,17 @@ public class TestDataManager implements Config {
         });
     }
 
-    public void ensureObjects(final List<HasFields> shapesToCreateInBulk,
+    public List<SObject> ensureObjects(final List<HasFields> shapesToCreateInBulk,
             final Insert salesforceAction) {
+        final List<HasFields> shapesWithoutObjects = shapesToCreateInBulk.stream()
+                .filter(objShape -> !findObject(objShape).isPresent())
+                .collect(Collectors.toList());
+        final List<SObject> objectsToCreate = shapesWithoutObjects.stream()
+                .map(objShape -> constructSObjectToStore(objShape))
+                .collect(Collectors.toList());
+        salesforceAction.insertObjects(objectsToCreate);
+        return shapesToCreateInBulk.stream()
+                .map(shape -> ensureObject(shape, salesforceAction))
+                .collect(Collectors.toList());
     }
 }

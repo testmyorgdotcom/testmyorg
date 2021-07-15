@@ -5,11 +5,11 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +37,7 @@ import com.sforce.soap.partner.sobject.SObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -285,24 +286,51 @@ public class TestDataManagerTest {
         when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
 
         dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
-
         dataManagerUnderTest.cleanData(salesforceCleanAction);
 
         verify(salesforceCleanAction, never()).cleanData(Collections.singleton(existingSfId));
     }
 
     @Test
-    public void ensureObjects_allowsToEnsureObjectsInBulk() {
+    public void ensureObjects_ensuresObjectForEveryShapeToMakeItAvailableForSearch() {
         final List<HasFields> shapesToCreateInBulk = Arrays.asList(
-            ofShape(account(), hasName("Test Client 1")),
-            ofShape(account(), hasName("Test Client 2")),
-            ofShape(account(), hasName("Test Client 3"))
-        );
+                ofShape(account(), hasName("Test Client 1")),
+                ofShape(account(), hasName("Test Client 2")),
+                ofShape(account(), hasName("Test Client 3")));
 
         dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
 
-        for(final HasFields shape: shapesToCreateInBulk){
+        for (final HasFields shape : shapesToCreateInBulk) {
             assertThat(dataManagerUnderTest.findObject(shape), not(Optional.empty()));
         }
+    }
+
+    @Test
+    public void ensureObjects_returnsObjectsInSameOrderAsShapes() {
+        final List<HasFields> shapesToCreateInBulk = Arrays.asList(
+                ofShape(account(), hasName("Test Client 1")),
+                ofShape(account(), hasName("Test Client 2")),
+                ofShape(account(), hasName("Test Client 3")));
+
+        final List<SObject> sObjects = dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
+
+        for (int i = 0; i < shapesToCreateInBulk.size(); i++) {
+            assertThat(sObjects.get(i), is(shapesToCreateInBulk.get(i)));
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void ensureObjects_createsObjectsInBulk() {
+        final ArgumentCaptor<List<SObject>> captureInsertedObject = ArgumentCaptor.forClass(List.class);
+        final List<HasFields> shapesToCreateInBulk = Arrays.asList(
+                ofShape(account(), hasName("Test Client 1")),
+                ofShape(account(), hasName("Test Client 2")),
+                ofShape(account(), hasName("Test Client 3")));
+
+        dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
+
+        verify(salesforceAction).insertObjects(captureInsertedObject.capture());
+        assertThat(captureInsertedObject.getValue(), hasItems(shapesToCreateInBulk.toArray(new HasFields[0])));
     }
 }
