@@ -10,6 +10,7 @@ import java.net.URL;
 
 import com.sforce.soap.partner.sobject.SObject;
 
+import org.testmy.data.SalesforceDataCache;
 import org.testmy.data.TestDataManager;
 import org.testmy.screenplay.ui.WebPage;
 
@@ -24,6 +25,8 @@ import net.thucydides.core.annotations.Shared;
 public class SearchForAccount implements Task {
     @Shared
     private TestDataManager testDataManager;
+    @Shared
+    private SalesforceDataCache dataCache;
     private String accountName;
 
     public SearchForAccount(final String accountName) {
@@ -36,7 +39,7 @@ public class SearchForAccount implements Task {
 
     @Override
     public <T extends Actor> void performAs(T actor) {
-        final SObject createdAccount = testDataManager.findObject(
+        final SObject createdAccount = dataCache.findObject(
                 ofShape(
                         account(),
                         hasName(accountName)))

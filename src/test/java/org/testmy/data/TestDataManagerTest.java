@@ -2,23 +2,19 @@ package org.testmy.data;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testmy.data.matchers.Matchers.hasField;
-import static org.testmy.data.matchers.Matchers.hasId;
 import static org.testmy.data.matchers.Matchers.hasName;
 import static org.testmy.data.matchers.Matchers.ofShape;
 import static org.testmy.data.matchers.ObjectMatchers.account;
@@ -30,7 +26,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.sforce.soap.partner.sobject.SObject;
 
@@ -45,7 +44,6 @@ import org.testmy.data.action.Clean;
 import org.testmy.data.action.Insert;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.data.matchers.HasFields;
-import org.testmy.data.matchers.Matchers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
@@ -57,16 +55,19 @@ public class TestDataManagerTest {
     private Insert salesforceAction;
     @Mock
     private Clean salesforceCleanAction;
+    @Mock
+    private SalesforceDataCache dataCache;
     @InjectMocks
     private TestDataManager dataManagerUnderTest;
 
     @Before
     public void before() {
-        when(salesforceAction.insert(any())).thenReturn(UUID.randomUUID().toString());
+        when(salesforceAction.insertObjects(any())).thenReturn(
+                Collections.singletonList(UUID.randomUUID().toString()));
     }
 
     @Test
-    public void ensureObject_guaranteesSObjectOfTheProvidedShape() {
+    public void ensureObject_guaranteesSObjectOfTheShape() {
         final ConstructingMatcher sObjectShape = ofShape(hasField("field", "value"), contact());
 
         final SObject sObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
@@ -80,89 +81,35 @@ public class TestDataManagerTest {
 
         dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
 
-        verify(salesforceAction).insert(any());
+        verify(salesforceAction).insertObjects(anyList());
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void ensureObject_createsObjectInSalesforceOnlyOnce() {
         final int amountOfCallsToEnsure = 10;
         final HasFields clientShape = ofShape(account());
+        when(dataCache.findObject(clientShape)).thenReturn(
+            Optional.empty(),
+            Optional.of(new SObject("Account")));
 
         for (int i = 0; i < amountOfCallsToEnsure; i++) {
             dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
         }
 
-        verify(salesforceAction, times(1)).insert(any());
+        verify(salesforceAction, times(1)).insertObjects(anyList());
     }
 
     @Test
-    public void findObject_canFindEnsuredObjectsOnly() {
-        final HasFields objectShape = ofShape(account());
+    @SuppressWarnings("unchecked")
+    public void ensureObject_addsCreatedObjectIntoDataCache() {
+        final HasFields clientShape = ofShape(account());
+        final SObject sObject = new SObject("Account");
+        when(dataCache.findObject(clientShape)).thenReturn(Optional.empty(), Optional.of(sObject));
 
-        assertThat(dataManagerUnderTest.findObject(objectShape), is(Optional.empty()));
+        dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
 
-        dataManagerUnderTest.ensureObject(objectShape, salesforceAction);
-
-        assertThat(dataManagerUnderTest.findObject(objectShape).get(), objectShape);
-    }
-
-    @Test
-    public void findObjects_canFindEnsuredObjectsOnly() {
-        final HasFields objectShape = ofShape(account());
-
-        assertThat(dataManagerUnderTest.findObjects(objectShape), is(empty()));
-
-        dataManagerUnderTest.ensureObject(objectShape, salesforceAction);
-
-        assertThat(dataManagerUnderTest.findObjects(objectShape), contains(objectShape));
-    }
-
-    @Test
-    public void findObjects_findsAllMatchingObjects() {
-        final HasFields objectShape1 = ofShape(account(), hasName("Client 1"));
-        final HasFields objectShape2 = ofShape(account(), hasName("Client 2"));
-        final HasFields objectShape3 = ofShape(contact());
-
-        dataManagerUnderTest.ensureObject(objectShape1, salesforceAction);
-        dataManagerUnderTest.ensureObject(objectShape2, salesforceAction);
-        dataManagerUnderTest.ensureObject(objectShape3, salesforceAction);
-
-        assertThat(dataManagerUnderTest.findObjects(account()), hasSize(2));
-        assertThat(dataManagerUnderTest.findObjects(account()), containsInAnyOrder(objectShape1, objectShape2));
-    }
-
-    @Test
-    public void cacheExistingShape_makesItSearchableWithoutStoringToSalesforce() {
-        final ConstructingMatcher ofShape = ofShape(account(), hasId("003xyz..."), hasName("Test Client"));
-
-        assertThat(dataManagerUnderTest.findObject(ofShape), is(Optional.empty()));
-
-        dataManagerUnderTest.cacheExistingShape(ofShape);
-
-        assertThat(dataManagerUnderTest.findObject(ofShape).get(), ofShape);
-        verify(salesforceAction, never()).insert(any());
-    }
-
-    @Test
-    public void cacheExistingShape_failIfShapeWithoutType() {
-        final ConstructingMatcher ofShape = ofShape(hasName("Test Client"));
-
-        final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> {
-            dataManagerUnderTest.cacheExistingShape(ofShape);
-        });
-
-        assertThat(iae.getMessage(), containsString("shape without 'type' property cannot construct SObject"));
-    }
-
-    @Test
-    public void cacheExistingShape_failIfShapeWithoutId() {
-        final ConstructingMatcher ofShape = ofShape(account(), hasName("Test Client"));
-
-        final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> {
-            dataManagerUnderTest.cacheExistingShape(ofShape);
-        });
-
-        assertThat(iae.getMessage(), containsString("Cannot add objects without Id"));
+        verify(dataCache).addOjbects(any());;
     }
 
     @Test
@@ -206,14 +153,15 @@ public class TestDataManagerTest {
     @Test
     public void cleanData_deletesCreatedRecords() {
         final String sfId1 = "1", sfId2 = "2", sfId3 = "3";
-        when(salesforceAction.insert(any())).thenReturn(sfId1, sfId2, sfId3);
-        dataManagerUnderTest.ensureObject(account(), salesforceAction);
-        dataManagerUnderTest.ensureObject(contact(), salesforceAction);
-        dataManagerUnderTest.ensureObject(opportunity(), salesforceAction);
+        final Set<String> testIds = new HashSet<>();
+        testIds.add(sfId1);
+        testIds.add(sfId2);
+        testIds.add(sfId3);
+        when(dataCache.getIds()).thenReturn(testIds);
 
         dataManagerUnderTest.cleanData(salesforceCleanAction);
 
-        verify(salesforceCleanAction).cleanData(new HashSet<String>(Arrays.asList(sfId1, sfId2, sfId3)));
+        verify(salesforceCleanAction).cleanData(testIds);
     }
 
     @Test
@@ -226,21 +174,21 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void ensureObjectIfAbsent_usesEnsuredObjects() {
+    public void ensureObjectIfAbsent_usesObjectsFoundBefore() {
+        final SObject objectFoundBefore = mock(SObject.class);
         final HasFields sObjectShape = ofShape(account());
-
-        final SObject ensuredObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
+        when(dataCache.findObject(sObjectShape)).thenReturn(Optional.of(objectFoundBefore));
 
         final SObject ensuredObjectWithIfAbsentCheck = dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape,
                 salesforceAction);
 
-        assertThat(ensuredObjectWithIfAbsentCheck, is(ensuredObject));
+        assertThat(ensuredObjectWithIfAbsentCheck, is(objectFoundBefore));
 
         verify(salesforceAction, never()).query(sObjectShape.toSoql());
     }
 
     @Test
-    public void ensureObjectIfAbsent_usesFoundObject() {
+    public void ensureObjectIfAbsent_usesObjectFoundInSalesforce() {
         final HasFields sObjectShape = ofShape(account());
         final SObject objectFromSalesforce = new SObject("Account");
         when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
@@ -251,17 +199,14 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void ensureObjectIfAbsent_foundObjectsAreAlsoUsedInEnsure() {
+    public void ensureObjectIfAbsent_foundObjectsAreAddedIntoCache() {
         final HasFields sObjectShape = ofShape(account());
         final SObject objectFromSalesforce = new SObject("Account");
         when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
 
         dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
 
-        final SObject ensuredObject = dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction);
-
-        assertThat(ensuredObject, is(objectFromSalesforce));
-        verify(salesforceAction, never()).insert(any());
+        verify(dataCache).addOjbects(objectFromSalesforce);
     }
 
     @Test
@@ -271,9 +216,8 @@ public class TestDataManagerTest {
 
         final SObject createdObject = dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
 
-        verify(salesforceAction).insert(any());
-
-        assertThat(dataManagerUnderTest.ensureObject(sObjectShape, salesforceAction), is(createdObject));
+        verify(salesforceAction).insertObjects(anyList());
+        verify(dataCache).addOjbects(createdObject);;
     }
 
     @Test
@@ -282,7 +226,7 @@ public class TestDataManagerTest {
         final String existingSfId = "123";
         final SObject objectFromSalesforce = new SObject("Account");
         objectFromSalesforce.setId(existingSfId);
-
+        when(dataCache.getIds()).thenReturn(Collections.singleton(existingSfId));
         when(salesforceAction.query(sObjectShape.toSoql())).thenReturn(Collections.singletonList(objectFromSalesforce));
 
         dataManagerUnderTest.ensureObjectIfAbsent(sObjectShape, salesforceAction);
@@ -292,25 +236,14 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void ensureObjects_ensuresObjectForEveryShapeToMakeItAvailableForSearch() {
-        final List<HasFields> shapesToCreateInBulk = Arrays.asList(
-                ofShape(account(), hasName("Test Client 1")),
-                ofShape(account(), hasName("Test Client 2")),
-                ofShape(account(), hasName("Test Client 3")));
-
-        dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
-
-        for (final HasFields shape : shapesToCreateInBulk) {
-            assertThat(dataManagerUnderTest.findObject(shape), not(Optional.empty()));
-        }
-    }
-
-    @Test
     public void ensureObjects_returnsObjectsInSameOrderAsShapes() {
         final List<HasFields> shapesToCreateInBulk = Arrays.asList(
                 ofShape(account(), hasName("Test Client 1")),
                 ofShape(account(), hasName("Test Client 2")),
                 ofShape(account(), hasName("Test Client 3")));
+        when(salesforceAction.insertObjects(any())).thenReturn(
+                IntStream.range(0, shapesToCreateInBulk.size()).mapToObj(i -> UUID.randomUUID().toString())
+                        .collect(Collectors.toList()));
 
         final List<SObject> sObjects = dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
 
@@ -327,10 +260,29 @@ public class TestDataManagerTest {
                 ofShape(account(), hasName("Test Client 1")),
                 ofShape(account(), hasName("Test Client 2")),
                 ofShape(account(), hasName("Test Client 3")));
+        when(salesforceAction.insertObjects(any())).thenReturn(
+                IntStream.range(0, shapesToCreateInBulk.size()).mapToObj(i -> UUID.randomUUID().toString())
+                        .collect(Collectors.toList()));
 
         dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
 
         verify(salesforceAction).insertObjects(captureInsertedObject.capture());
         assertThat(captureInsertedObject.getValue(), hasItems(shapesToCreateInBulk.toArray(new HasFields[0])));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void ensureObjects_doesNotCreateObjectsForDataAlreadyInCache() {
+        final ArgumentCaptor<List<SObject>> captureInsertedObject = ArgumentCaptor.forClass(List.class);
+        final HasFields existingShape = ofShape(account(), hasName("Test Client 1"));
+        final HasFields missingShape = ofShape(account(), hasName("Test Client 2"));
+        final List<HasFields> shapesToCreateInBulk = Arrays.asList(existingShape, missingShape);
+        when(dataCache.findObject(existingShape)).thenReturn(Optional.of(new SObject("Account")));
+
+        dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
+
+        verify(salesforceAction).insertObjects(captureInsertedObject.capture());
+        assertThat(captureInsertedObject.getValue(), contains(missingShape));
+        assertThat(captureInsertedObject.getValue(), not(contains(existingShape)));
     }
 }
