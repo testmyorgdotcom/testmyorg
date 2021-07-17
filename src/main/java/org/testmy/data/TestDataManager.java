@@ -1,5 +1,7 @@
 package org.testmy.data;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -9,12 +11,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.bind.XmlObject;
 
-import org.apache.commons.lang3.StringUtils;
-import org.hamcrest.Matcher;
 import org.testmy.config.Config;
 import org.testmy.data.action.Clean;
 import org.testmy.data.action.Insert;
@@ -28,32 +29,13 @@ public class TestDataManager implements Config {
     private RecordTypeIdProvider recordTypeIdProvider;
     @Shared
     private ReferenceAttributeTypeProvider referenceAttributeTypeProvider;
-    private List<SObject> sObjects = new LinkedList<>();
+    @Shared
+    private SalesforceDataCache sfDataCache;
     private Set<String> sfIdsOfObjectsFoundInSalesforce = new HashSet<>();
-
-    public Optional<SObject> findObject(Matcher<SObject> sObjectShape) {
-        return sObjects.stream().filter(sObjectShape::matches).findFirst();
-    }
-
-    public List<SObject> findObjects(final Matcher<SObject> sObjectShape) {
-        return sObjects.stream().filter(sObjectShape::matches).collect(Collectors.toList());
-    }
 
     public SObject ensureObject(final ConstructingMatcher sObjectShape,
             final Insert salesforceAction) {
-        return findObject(sObjectShape).orElseGet(() -> {
-            final String sfId = store(sObjectShape, salesforceAction);
-            final SObject result = constructSObject(sObjectShape);
-            result.setId(sfId);
-            sObjects.add(result);
-            return result;
-        });
-    }
-
-    private String store(final ConstructingMatcher sObjectShape,
-            final Insert salesforceAction) {
-        final SObject sObjectToStore = constructSObjectToStore(sObjectShape);
-        return salesforceAction.insert(sObjectToStore);
+        return ensureObjects(Collections.singletonList(sObjectShape), salesforceAction).get(0);
     }
 
     // consider private, access = default for testability
@@ -130,15 +112,11 @@ public class TestDataManager implements Config {
 
     public void cacheExistingShape(final ConstructingMatcher ofShape) {
         final SObject sObject = constructSObject(ofShape);
-        if (StringUtils.isBlank(sObject.getId())) {
-            throw new IllegalArgumentException("Cannot add objects without Id: " + sObject);
-        }
-        sObjects.add(sObject);
+        sfDataCache.addOjbects(sObject);
     }
 
     public void cleanData(final Clean salesforceCleanAction) {
-        final Set<String> sfIdsToDelete = sObjects.stream()
-                .map(so -> so.getId())
+        final Set<String> sfIdsToDelete = sfDataCache.getIds().stream()
                 .filter(id -> !sfIdsOfObjectsFoundInSalesforce.contains(id))
                 .collect(Collectors.toSet());
         if (!sfIdsToDelete.isEmpty()) {
@@ -148,14 +126,59 @@ public class TestDataManager implements Config {
 
     public SObject ensureObjectIfAbsent(final HasFields sObjectShape,
             final Insert salesforceAction) {
-        return findObject(sObjectShape).orElseGet(() -> {
+        return sfDataCache.findObject(sObjectShape).orElseGet(() -> {
             final Optional<SObject> foundObject = salesforceAction.query(sObjectShape.toSoql()).stream().findFirst();
             if (foundObject.isPresent()) {
                 final SObject fo = foundObject.get();
-                sObjects.add(fo);
+                sfDataCache.addOjbects(fo);
                 sfIdsOfObjectsFoundInSalesforce.add(fo.getId());
             }
             return foundObject.orElse(ensureObject(sObjectShape, salesforceAction));
+        });
+    }
+
+    public List<SObject> ensureObjects(final List<? extends ConstructingMatcher> shapes,
+            final Insert salesforceAction) {
+        final List<ConstructingMatcher> shapesWithoutRecords = new LinkedList<>();
+        final List<SObject> existingRecordsForShapes = new LinkedList<>();
+        splitShapesByExistanceInCache(shapes, shapesWithoutRecords, existingRecordsForShapes);
+        final List<SObject> ensuredRecords = new ArrayList<>();
+        if (!shapesWithoutRecords.isEmpty()) {
+            final List<SObject> createdRecords = createMissingRecords(shapesWithoutRecords, salesforceAction);
+            ensuredRecords.addAll(createdRecords);
+        }
+        ensuredRecords.addAll(existingRecordsForShapes);
+        return ensuredRecords;
+    }
+
+    private List<SObject> createMissingRecords(final List<ConstructingMatcher> shapesWithoutObjects,
+            final Insert salesforceAction) {
+        final List<SObject> objectsToCreate = shapesWithoutObjects.stream()
+                .map(objShape -> constructSObjectToStore(objShape))
+                .collect(Collectors.toList());
+        final List<String> sfIds = salesforceAction.insertObjects(objectsToCreate);
+        final List<SObject> createdObjects = IntStream.range(0, shapesWithoutObjects.size())
+                .mapToObj(i -> {
+                    final SObject sObjectToStoreInCache = constructSObject(shapesWithoutObjects.get(i));
+                    sObjectToStoreInCache.setId(sfIds.get(i));
+                    return sObjectToStoreInCache;
+                })
+                .collect(Collectors.toList());
+        sfDataCache.addOjbects(createdObjects.toArray(new SObject[0]));
+        return createdObjects;
+    }
+
+    private void splitShapesByExistanceInCache(final List<? extends ConstructingMatcher> shapesForRecords,
+            final List<ConstructingMatcher> shapesWithoutRecords,
+            final List<SObject> existingRecords) {
+        shapesForRecords.forEach(shape -> {
+            final Optional<SObject> foundObject = sfDataCache.findObject(shape);
+            if (foundObject.isPresent()) {
+                existingRecords.add(foundObject.get());
+            }
+            else {
+                shapesWithoutRecords.add(shape);
+            }
         });
     }
 }
