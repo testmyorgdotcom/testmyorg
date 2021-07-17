@@ -44,6 +44,7 @@ import org.testmy.data.action.Clean;
 import org.testmy.data.action.Insert;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.data.matchers.HasFields;
+import org.testmy.data.matchers.Matchers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
@@ -90,8 +91,8 @@ public class TestDataManagerTest {
         final int amountOfCallsToEnsure = 10;
         final HasFields clientShape = ofShape(account());
         when(dataCache.findObject(clientShape)).thenReturn(
-            Optional.empty(),
-            Optional.of(new SObject("Account")));
+                Optional.empty(),
+                Optional.of(new SObject("Account")));
 
         for (int i = 0; i < amountOfCallsToEnsure; i++) {
             dataManagerUnderTest.ensureObject(clientShape, salesforceAction);
@@ -236,19 +237,18 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void ensureObjects_returnsObjectsInSameOrderAsShapes() {
+    public void ensureObjects_doesNotGuaranteeOrderOfReturnedObjects() {
+        final HasFields existingShape = ofShape(account(), hasName("Test Client 1"));
+        final HasFields shapeWithoutRecord = ofShape(account(), hasName("Test Client 2"));
         final List<HasFields> shapesToCreateInBulk = Arrays.asList(
-                ofShape(account(), hasName("Test Client 1")),
-                ofShape(account(), hasName("Test Client 2")),
-                ofShape(account(), hasName("Test Client 3")));
-        when(salesforceAction.insertObjects(any())).thenReturn(
-                IntStream.range(0, shapesToCreateInBulk.size()).mapToObj(i -> UUID.randomUUID().toString())
-                        .collect(Collectors.toList()));
+                existingShape,
+                shapeWithoutRecord);
+        when(dataCache.findObject(existingShape)).thenReturn(Optional.of(new SObject()));
 
         final List<SObject> sObjects = dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
 
         for (int i = 0; i < shapesToCreateInBulk.size(); i++) {
-            assertThat(sObjects.get(i), is(shapesToCreateInBulk.get(i)));
+            assertThat(sObjects.get(i), not(shapesToCreateInBulk.get(i)));
         }
     }
 

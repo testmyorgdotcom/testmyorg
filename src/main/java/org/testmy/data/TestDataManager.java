@@ -137,36 +137,48 @@ public class TestDataManager implements Config {
         });
     }
 
-    public List<SObject> ensureObjects(final List<? extends ConstructingMatcher> shapesToCreateInBulk,
+    public List<SObject> ensureObjects(final List<? extends ConstructingMatcher> shapes,
             final Insert salesforceAction) {
-        final List<ConstructingMatcher> shapesWithoutObjects = new LinkedList<>();
-        final List<SObject> existingObjects = new LinkedList<>();
-        shapesToCreateInBulk.stream().map(shape -> {
-            final Optional<SObject> foundObject = sfDataCache.findObject(shape);
-            if (foundObject.isPresent()) {
-                existingObjects.add(foundObject.get());
-            }
-            else {
-                shapesWithoutObjects.add(shape);
-            }
-            return null;
-        }).count();
+        final List<ConstructingMatcher> shapesWithoutRecords = new LinkedList<>();
+        final List<SObject> existingRecordsForShapes = new LinkedList<>();
+        splitShapesByExistanceInCache(shapes, shapesWithoutRecords, existingRecordsForShapes);
+        final List<SObject> ensuredRecords = new ArrayList<>();
+        if (!shapesWithoutRecords.isEmpty()) {
+            final List<SObject> createdRecords = createMissingRecords(shapesWithoutRecords, salesforceAction);
+            ensuredRecords.addAll(createdRecords);
+        }
+        ensuredRecords.addAll(existingRecordsForShapes);
+        return ensuredRecords;
+    }
+
+    private List<SObject> createMissingRecords(final List<ConstructingMatcher> shapesWithoutObjects,
+            final Insert salesforceAction) {
         final List<SObject> objectsToCreate = shapesWithoutObjects.stream()
                 .map(objShape -> constructSObjectToStore(objShape))
                 .collect(Collectors.toList());
-        final List<SObject> ensuredObjets = new ArrayList<>();
-        if (!objectsToCreate.isEmpty()) {
-            final List<String> sfIds = salesforceAction.insertObjects(objectsToCreate);
-            final List<SObject> createdObjects = IntStream.range(0, shapesWithoutObjects.size()).mapToObj(i -> {
-                final SObject sObjectToStoreInCache = constructSObject(shapesWithoutObjects.get(i));
-                sObjectToStoreInCache.setId(sfIds.get(i));
-                sfDataCache.addOjbects(sObjectToStoreInCache);
-                return sObjectToStoreInCache;
-            })
-                    .collect(Collectors.toList());
-            ensuredObjets.addAll(createdObjects);
-        }
-        ensuredObjets.addAll(existingObjects);
-        return ensuredObjets;
+        final List<String> sfIds = salesforceAction.insertObjects(objectsToCreate);
+        final List<SObject> createdObjects = IntStream.range(0, shapesWithoutObjects.size())
+                .mapToObj(i -> {
+                    final SObject sObjectToStoreInCache = constructSObject(shapesWithoutObjects.get(i));
+                    sObjectToStoreInCache.setId(sfIds.get(i));
+                    return sObjectToStoreInCache;
+                })
+                .collect(Collectors.toList());
+        sfDataCache.addOjbects(createdObjects.toArray(new SObject[0]));
+        return createdObjects;
+    }
+
+    private void splitShapesByExistanceInCache(final List<? extends ConstructingMatcher> shapesForRecords,
+            final List<ConstructingMatcher> shapesWithoutRecords,
+            final List<SObject> existingRecords) {
+        shapesForRecords.forEach(shape -> {
+            final Optional<SObject> foundObject = sfDataCache.findObject(shape);
+            if (foundObject.isPresent()) {
+                existingRecords.add(foundObject.get());
+            }
+            else {
+                shapesWithoutRecords.add(shape);
+            }
+        });
     }
 }
