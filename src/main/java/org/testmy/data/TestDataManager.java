@@ -5,11 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -139,16 +140,63 @@ public class TestDataManager implements Config {
 
     public List<SObject> ensureObjects(final List<? extends ConstructingMatcher> shapes,
             final Insert salesforceAction) {
-        final List<ConstructingMatcher> shapesWithoutRecords = new LinkedList<>();
-        final List<SObject> existingRecordsForShapes = new LinkedList<>();
-        splitShapesByExistanceInCache(shapes, shapesWithoutRecords, existingRecordsForShapes);
-        final List<SObject> ensuredRecords = new ArrayList<>();
+        final Map<ConstructingMatcher, SObject> recordsForShapes = resolveOrCreateRecords(shapes, salesforceAction);
+        return new ArrayList<>(recordsForShapes.values());
+    }
+
+    private Map<ConstructingMatcher, SObject> resolveOrCreateRecords(
+            final List<? extends ConstructingMatcher> shapes,
+            final Insert salesforceAction) {
+        final Map<ConstructingMatcher, SObject> shapesWithRecords = withNullsForShapesWithoutRecords(shapes);
+        final List<ConstructingMatcher> shapesWithoutRecords = extractShapesWithoutRecords(shapesWithRecords);
+        final List<SObject> createdRecords = createRecords(shapesWithoutRecords, salesforceAction);
+        return replaceNullsWithCreatedRecords(shapesWithRecords, createdRecords);
+    }
+
+    private Map<ConstructingMatcher, SObject> replaceNullsWithCreatedRecords(
+            final Map<ConstructingMatcher, SObject> shapesWithRecords,
+            final List<SObject> createdRecords) {
+        final Map<ConstructingMatcher, SObject> result = new LinkedHashMap<>();
+        final AtomicInteger counter = new AtomicInteger(0);
+        shapesWithRecords.entrySet().forEach(e -> {
+            result.put(
+                    e.getKey(),
+                    null == e.getValue()
+                            ? createdRecords.get(counter.getAndIncrement())
+                            : e.getValue());
+        });
+        return result;
+    }
+
+    private List<SObject> createRecords(final List<ConstructingMatcher> shapesWithoutRecords,
+            final Insert salesforceAction) {
+        final List<SObject> createdRecords = new ArrayList<>();
         if (!shapesWithoutRecords.isEmpty()) {
-            final List<SObject> createdRecords = createMissingRecords(shapesWithoutRecords, salesforceAction);
-            ensuredRecords.addAll(createdRecords);
+            createdRecords.addAll(createMissingRecords(shapesWithoutRecords, salesforceAction));
         }
-        ensuredRecords.addAll(existingRecordsForShapes);
-        return ensuredRecords;
+        return createdRecords;
+    }
+
+    private List<ConstructingMatcher> extractShapesWithoutRecords(final Map<ConstructingMatcher, SObject> tempMap) {
+        return tempMap.entrySet().stream()
+                .filter(e -> null == e.getValue())
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+    }
+
+    private Map<ConstructingMatcher, SObject> withNullsForShapesWithoutRecords(
+            final List<? extends ConstructingMatcher> shapes) {
+        final Map<ConstructingMatcher, SObject> tempMap = new LinkedHashMap<>();
+        shapes.forEach(shape -> {
+            final Optional<SObject> foundObject = sfDataCache.findObject(shape);
+            if (foundObject.isPresent()) {
+                tempMap.put(shape, foundObject.get());
+            }
+            else {
+                tempMap.put(shape, null);
+            }
+        });
+        return tempMap;
     }
 
     private List<SObject> createMissingRecords(final List<ConstructingMatcher> shapesWithoutObjects,
@@ -166,19 +214,5 @@ public class TestDataManager implements Config {
                 .collect(Collectors.toList());
         sfDataCache.addOjbects(createdObjects.toArray(new SObject[0]));
         return createdObjects;
-    }
-
-    private void splitShapesByExistanceInCache(final List<? extends ConstructingMatcher> shapesForRecords,
-            final List<ConstructingMatcher> shapesWithoutRecords,
-            final List<SObject> existingRecords) {
-        shapesForRecords.forEach(shape -> {
-            final Optional<SObject> foundObject = sfDataCache.findObject(shape);
-            if (foundObject.isPresent()) {
-                existingRecords.add(foundObject.get());
-            }
-            else {
-                shapesWithoutRecords.add(shape);
-            }
-        });
     }
 }

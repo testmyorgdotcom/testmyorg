@@ -44,7 +44,6 @@ import org.testmy.data.action.Clean;
 import org.testmy.data.action.Insert;
 import org.testmy.data.matchers.ConstructingMatcher;
 import org.testmy.data.matchers.HasFields;
-import org.testmy.data.matchers.Matchers;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDataManagerTest {
@@ -237,18 +236,20 @@ public class TestDataManagerTest {
     }
 
     @Test
-    public void ensureObjects_doesNotGuaranteeOrderOfReturnedObjects() {
+    public void ensureObjects_guaranteesOrderOfReturnedObjects() {
         final HasFields existingShape = ofShape(account(), hasName("Test Client 1"));
+        final SObject existingObject = new SObject("Account");
+        existingObject.setField("Name", "Test Client 1");
         final HasFields shapeWithoutRecord = ofShape(account(), hasName("Test Client 2"));
         final List<HasFields> shapesToCreateInBulk = Arrays.asList(
                 existingShape,
                 shapeWithoutRecord);
-        when(dataCache.findObject(existingShape)).thenReturn(Optional.of(new SObject()));
+        when(dataCache.findObject(existingShape)).thenReturn(Optional.of(existingObject));
 
         final List<SObject> sObjects = dataManagerUnderTest.ensureObjects(shapesToCreateInBulk, salesforceAction);
 
         for (int i = 0; i < shapesToCreateInBulk.size(); i++) {
-            assertThat(sObjects.get(i), not(shapesToCreateInBulk.get(i)));
+            assertThat(sObjects.get(i), is(shapesToCreateInBulk.get(i)));
         }
     }
 
