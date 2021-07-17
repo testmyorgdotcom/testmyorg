@@ -140,32 +140,24 @@ public class TestDataManager implements Config {
 
     public List<SObject> ensureObjects(final List<? extends ConstructingMatcher> shapes,
             final Insert salesforceAction) {
-        final Map<ConstructingMatcher, SObject> recordsForShapes = resolveOrCreateRecords(shapes, salesforceAction);
-        return new ArrayList<>(recordsForShapes.values());
-    }
-
-    private Map<ConstructingMatcher, SObject> resolveOrCreateRecords(
-            final List<? extends ConstructingMatcher> shapes,
-            final Insert salesforceAction) {
         final Map<ConstructingMatcher, SObject> shapesWithRecords = withNullsForShapesWithoutRecords(shapes);
         final List<ConstructingMatcher> shapesWithoutRecords = extractShapesWithoutRecords(shapesWithRecords);
         final List<SObject> createdRecords = createRecords(shapesWithoutRecords, salesforceAction);
         return replaceNullsWithCreatedRecords(shapesWithRecords, createdRecords);
     }
 
-    private Map<ConstructingMatcher, SObject> replaceNullsWithCreatedRecords(
-            final Map<ConstructingMatcher, SObject> shapesWithRecords,
+    private List<SObject> replaceNullsWithCreatedRecords(
+            final Map<ConstructingMatcher, SObject> shapesWithRecordsAndNullsIfWithout,
             final List<SObject> createdRecords) {
-        final Map<ConstructingMatcher, SObject> result = new LinkedHashMap<>();
         final AtomicInteger counter = new AtomicInteger(0);
-        shapesWithRecords.entrySet().forEach(e -> {
-            result.put(
+        shapesWithRecordsAndNullsIfWithout.entrySet().forEach(e -> {
+            shapesWithRecordsAndNullsIfWithout.put(
                     e.getKey(),
                     null == e.getValue()
                             ? createdRecords.get(counter.getAndIncrement())
                             : e.getValue());
         });
-        return result;
+        return new ArrayList<>(shapesWithRecordsAndNullsIfWithout.values());
     }
 
     private List<SObject> createRecords(final List<ConstructingMatcher> shapesWithoutRecords,
@@ -186,17 +178,17 @@ public class TestDataManager implements Config {
 
     private Map<ConstructingMatcher, SObject> withNullsForShapesWithoutRecords(
             final List<? extends ConstructingMatcher> shapes) {
-        final Map<ConstructingMatcher, SObject> tempMap = new LinkedHashMap<>();
+        final Map<ConstructingMatcher, SObject> result = new LinkedHashMap<>();
         shapes.forEach(shape -> {
             final Optional<SObject> foundObject = sfDataCache.findObject(shape);
             if (foundObject.isPresent()) {
-                tempMap.put(shape, foundObject.get());
+                result.put(shape, foundObject.get());
             }
             else {
-                tempMap.put(shape, null);
+                result.put(shape, null);
             }
         });
-        return tempMap;
+        return result;
     }
 
     private List<SObject> createMissingRecords(final List<ConstructingMatcher> shapesWithoutObjects,
